@@ -1,0 +1,12 @@
+*~
+.xmake/
+.vscode/
+.cache/
+models/
+asm/__pycache__
+models/*/*.bin
+models/*/*.asm
+models/*/*.names
+ignore/
+build/
+imgui.ini

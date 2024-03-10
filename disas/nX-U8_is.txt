@@ -1,0 +1,310 @@
+// This program doesn't have IP, but the disassembler use ip (instruction pointer).
+
+#define pc ip
+
+/* Have zero padding at first if necessary.
+   The number with maximum length is (1 << (binlen - 1)), equal to the smallest
+   number. It is a power of 2, thus first digit cannot be hexadecimal.
+   The number has binlen digits. So, hexlen = ceil(binlen/4).
+*/
+std::string signedtohex(int n, int binlen) {
+	// n satisfy (unsigned)n < (1 << binlen)
+    binlen--;
+    bool ispositive = (n >> binlen) == 0;
+	if (!ispositive) n = (2 << binlen) - n;
+	std::string retval = "";
+    binlen = 1 + binlen / 4; // ceil of (old)binlen/4
+    // now binlen <- hexlen
+    for (int x = 0; x < binlen; x++) {
+        retval = "0123456789ABCDEF"[n & 0xF] + retval;
+        n >>= 4;
+    }
+    return ispositive ? retval : ("-" + retval);
+}
+
+std::string cond [16] = {"GE", "LT", "GT", "LE", "GES", "LTS", "GTS", "LES",
+		"NE", "EQ", "NV", "OV", "PS", "NS", "AL", "<Unrecognized>"};
+
+*
+{} 4 2
+
+; The first "*" denote end of C++ functions (and some kinds of const) part.
+
+; Opening and closing bracket that is not used in opcode. Must be characters.
+; "4": maximum opcode length.
+; "2": in case of unrecognized command, skip that many bytes.
+
+
+; Special notation:
+; Because the disassembler use int as internal data type, then "i << 25 >> 25" is "(signed7) i".
+; The disassembler-creater does not recognize semicolon in middle of line as comment, so it
+;     is used for comment in the disassembled file.
+
+
+# 2
+
+; ----------- Special: DSR Prefix Instructions -----------
+; That is not possible in source code anyway but is for
+;   simplifying the instruction set file.
+
+iiiiiiii 11100011 DSR<-   0{tohex(i, 2)}h
+dddd1111 10010000 DSR<-   R{d}
+10011111 11111110 DSR<-   DSR
+; If there is no DSR prefix instruction then "DSR<-   0"
+
+; ----------- Arithmetic instructions -----------
+; In some of those, #imm8's signedness is not determined, but that is not important
+; because it is just added, subtracted or compared to a 8-bit register.
+; It affect C and OV flag differently.
+
+mmmm0001 1000nnnn ADD     R{n}, R{m}
+iiiiiiii 0001nnnn ADD     R{n}, #{i}
+mmm00110 1111nnn0 ADD     ER{n*2}, ER{m*2}
+1iiiiiii 1110nnn0 ADD     ER{n*2}, #{i << 25 >> 25}
+mmmm0110 1000nnnn ADDC    R{n}, R{m}
+iiiiiiii 0110nnnn ADDC    R{n}, #{i}
+mmmm0010 1000nnnn AND     R{n}, R{m}
+iiiiiiii 0010nnnn AND     R{n}, #{i}
+mmmm0111 1000nnnn CMP     R{n}, R{m}
+iiiiiiii 0111nnnn CMP     R{n}, #{i}
+mmmm0101 1000nnnn CMPC    R{n}, R{m}
+iiiiiiii 0101nnnn CMPC    R{n}, #{i}
+mmm00101 1111nnn0 MOV     ER{n*2}, ER{m*2}
+0iiiiiii 1110nnn0 MOV     ER{n*2}, #{i}
+mmmm0000 1000nnnn MOV     R{n}, R{m}
+iiiiiiii 0000nnnn MOV     R{n}, #{i}
+mmmm0011 1000nnnn OR      R{n}, R{m}
+iiiiiiii 0011nnnn OR      R{n}, #{i}
+mmmm0100 1000nnnn XOR     R{n}, R{m}
+iiiiiiii 0100nnnn XOR     R{n}, #{i}
+mmm00111 1111nnn0 CMP     ER{n*2}, ER{m*2}
+mmmm1000 1000nnnn SUB     R{n}, R{m}
+mmmm1001 1000nnnn SUBC    R{n}, R{m}
+
+; ----------- Shift Instructions -----------
+mmmm1010 1000nnnn SLL     R{n}, R{m}
+0www1010 1001nnnn SLL     R{n}, #{w}
+mmmm1011 1000nnnn SLLC    R{n}, R{m}
+0www1011 1001nnnn SLLC    R{n}, #{w}
+mmmm1110 1000nnnn SRA     R{n}, R{m}
+0www1110 1001nnnn SRA     R{n}, #{w}
+mmmm1100 1000nnnn SRL     R{n}, R{m}
+0www1100 1001nnnn SRL     R{n}, #{w}
+mmmm1101 1000nnnn SRLC    R{n}, R{m}
+0www1101 1001nnnn SRLC    R{n}, #{w}
+
+; ----------- Load/Store Instructions (2 bytes) -----------
+
+00110010 1001nnn0 L       ER{n*2}, [EA]
+01010010 1001nnn0 L       ER{n*2}, [EA+]
+mmm00010 1001nnn0 L       ER{n*2}, [ER{m*2}]
+
+; Not support same character over multiple bytes
+; C++ operators (+, -, *, <<, >>, >>>)
+
+00DDDDDD 1011nnn0 L       ER{n*2}, {signedtohex(D, 6)}h[BP]
+01DDDDDD 1011nnn0 L       ER{n*2}, {signedtohex(D, 6)}h[FP]
+
+; What is Dadr? -> Direct address
+
+00110000 1001nnnn L       R{n}, [EA]
+01010000 1001nnnn L       R{n}, [EA+]
+mmm00000 1001nnnn L       R{n}, [ER{m*2}]
+00DDDDDD 1101nnnn L       R{n}, {signedtohex(D, 6)}h[BP]
+01DDDDDD 1101nnnn L       R{n}, {signedtohex(D, 6)}h[FP]
+
+00110100 1001nn00 L       XR{n*4}, [EA]
+01010100 1001nn00 L       XR{n*4}, [EA+]
+00110110 1001n000 L       QR{n*8}, [EA]
+01010110 1001n000 L       QR{n*8}, [EA+]
+
+
+
+00110011 1001nnn0 ST      ER{n*2}, [EA]
+01010011 1001nnn0 ST      ER{n*2}, [EA+]
+mmm00011 1001nnn0 ST      ER{n*2}, [ER{m*2}]
+10DDDDDD 1011nnn0 ST      ER{n*2}, {signedtohex(D, 6)}h[BP]
+; D : Disp6
+11DDDDDD 1011nnn0 ST      ER{n*2}, {signedtohex(D, 6)}h[FP]
+
+00110001 1001nnnn ST      R{n}, [EA]
+01010001 1001nnnn ST      R{n}, [EA+]
+mmm00001 1001nnnn ST      R{n}, [ER{m*2}]
+10DDDDDD 1101nnnn ST      R{n}, {signedtohex(D, 6)}h[BP]
+11DDDDDD 1101nnnn ST      R{n}, {signedtohex(D, 6)}h[FP]
+
+00110101 1001nn00 ST      XR{n*4}, [EA]
+01010101 1001nn00 ST      XR{n*4}, [EA+]
+
+00110111 1001n000 ST      QR{n*8}, [EA]
+01010111 1001n000 ST      QR{n*8}, [EA+]
+
+
+iiiiiiii 11100001 ADD     SP, #{signedtohex(i, 8)}h
+; #imm8 = #signed8
+mmmm1111 10100000 MOV     ECSR, R{m}
+00001101 1010mmm0 MOV     ELR, ER{m*2}
+mmmm1100 10100000 MOV     EPSW, R{m}
+
+00000101 1010nnn0 MOV     ER{n*2}, ELR
+00011010 1010nnn0 MOV     ER{n*2}, SP
+mmmm1011 10100000 MOV     PSW, R{m}
+iiiiiiii 11101001 MOV     PSW, #{i} 
+; #imm8 = #unsigned8
+
+00000111 1010nnnn MOV     R{n}, ECSR
+00000100 1010nnnn MOV     R{n}, EPSW
+00000011 1010nnnn MOV     R{n}, PSW
+
+mmm01010 10100001 MOV     SP, ER{m*2}
+
+; ----------- PUSH/POP Instructions -----------
+
+01011110 1111nnn0 PUSH    ER{n*2}
+01111110 1111n000 PUSH    QR{n*8}
+01001110 1111nnnn PUSH    R{n}
+01101110 1111nn00 PUSH    XR{n*4}
+
+11001110 1111lep1 PUSH    {l==1?"LR, ":""}{e==1?"EPSW, ":""}{p==1?"ELR, ":""}EA
+11001110 1111le10 PUSH    {l==1?"LR, ":""}{e==1?"EPSW, ":""}ELR
+11001110 1111l100 PUSH    {l==1?"LR, ":""}EPSW
+11001110 11111000 PUSH    LR
+; 4 cases because they have different separator (comma) rule
+
+00011110 1111nnn0 POP     ER{n*2}
+00111110 1111n000 POP     QR{n*8}
+00001110 1111nnnn POP     R{n}
+00101110 1111nn00 POP     XR{n*4}
+10001110 1111lep1 POP     {l==1?"LR, ":""}{e==1?"PSW, ":""}{p==1?"PC, ":""}EA
+10001110 1111le10 POP     {l==1?"LR, ":""}{e==1?"PSW, ":""}PC
+10001110 1111l100 POP     {l==1?"LR, ":""}PSW
+10001110 11111000 POP     LR
+
+; ----------- Coprocessor Data Transfer Instructions -----------
+
+mmmm1110 1010nnnn MOV     CR{n}, R{m}
+00101101 1111nnn0 MOV     CER{n*2}, [EA]
+00111101 1111nnn0 MOV     CER{n*2}, [EA+]
+00001101 1111nnnn MOV     CR{n}, [EA]
+00011101 1111nnnn MOV     CR{n}, [EA+]
+01001101 1111nn00 MOV     CXR{n*4}, [EA]
+01011101 1111nn00 MOV     CXR{n*4}, [EA+]
+01101101 1111n000 MOV     CQR{n*8}, [EA]
+01111101 1111n000 MOV     CQR{n*8}, [EA+]
+
+mmmm0110 1010nnnn MOV     R{n}, CR{m}
+10101101 1111mmm0 MOV     [EA], CER{m*2}
+10111101 1111mmm0 MOV     [EA+], CER{m*2}
+10001101 1111mmmm MOV     [EA], CR{m}
+10011101 1111mmmm MOV     [EA+], CR{m}
+11001101 1111mm00 MOV     [EA], CXR{m*4}
+11011101 1111mm00 MOV     [EA+], CXR{m*4}
+11101101 1111m000 MOV     [EA], CQR{m*8}
+11111101 1111m000 MOV     [EA+], CQR{m*8}
+
+
+; ----------- EA Register Data Transfer Instructions -----------
+
+mmm01010 11110000 LEA     [ER{m*2}]
+
+
+; ----------- ALU Instructions -----------
+
+00011111 1000nnnn DAA     R{n}
+00111111 1000nnnn DAS     R{n}
+01011111 1000nnnn NEG     R{n}
+
+
+; ----------- Bit Access Instructions -----------
+
+0bbb0000 1010nnnn SB      R{n}.{b}
+; b : bit_offset
+0bbb0010 1010nnnn RB      R{n}.{b}
+0bbb0001 1010nnnn TB      R{n}.{b}
+
+
+; ----------- PSW Access Instructions -----------
+
+00001000 11101101 EI
+11110111 11101011 DI
+10000000 11101101 SC
+01111111 11101011 RC
+11001111 11111110 CPLC
+
+; ----------- Conditional Relative Branch Instructions -----------
+rrrrrrrr 1100cccc BC      {cond[c]}, {tohex(2 + pc + ((int)(signed char)r << 1), 4+1)}h
+
+; nextPC = (2 + pc).
+
+; The above ; is for comment in the assembly file, not this file.
+
+; !*!*!*!*!*!*!*!*!*!*!*!*!*!*!* Test that carefully! !*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+
+; ----------- Sign Extension Instruction -----------
+nnn01111 1000mmm1 {m == n ? "" : "Wrong format - "}EXTBW   ER{n*2}
+
+; ----------- Software Interrupt Instructions -----------
+00iiiiii 11100101 SWI     #{i}
+11111111 11111111 BRK
+
+
+; ----------- Branch Instructions -----------
+nnn00010 11110000 B       ER{n*2}
+nnn00011 11110000 BL      ER{n*2}
+
+
+; ----------- Multiplication and Division Instructions -----------
+mmmm0100 1111nnn0 MUL     ER{n*2}, R{m}
+mmmm1001 1111nnn0 DIV     ER{n*2}, R{m}
+
+; ----------- Miscellaneous -----------
+00101111 11111110 INC     [EA]
+00111111 11111110 DEC     [EA]
+00011111 11111110 RT
+00001111 11111110 RTI
+10001111 11111110 NOP
+
+# 4
+; All commands in this part contains Dadr.
+
+
+; ----------- Load/Store Instructions -----------
+
+mmm01000 1010nnn0 DDDDDDDD EEEEEEEE L       ER{n*2}, {signedtohex(E*256+D, 16)}h[ER{m*2}]
+00010010 1001nnn0 DDDDDDDD EEEEEEEE L       ER{n*2}, 0{tohex(E*256+D, 4)}h
+mmm01000 1001nnnn DDDDDDDD EEEEEEEE L       R{n}, {signedtohex(E*256+D, 16)}h[ER{m*2}]
+00010000 1001nnnn DDDDDDDD EEEEEEEE L       R{n}, 0{tohex(E*256+D, 4)}h
+
+mmm01001 1010nnn0 DDDDDDDD EEEEEEEE ST      ER{n*2}, {signedtohex(E*256+D, 16)}h[ER{m*2}]
+00010011 1001nnn0 DDDDDDDD EEEEEEEE ST      ER{n*2}, 0{tohex(E*256+D, 4)}h
+mmm01001 1001nnnn DDDDDDDD EEEEEEEE ST      R{n}, {signedtohex(E*256+D, 16)}h[ER{m*2}]
+00010001 1001nnnn DDDDDDDD EEEEEEEE ST      R{n}, 0{tohex(E*256+D, 4)}h
+
+; ----------- EA Register Data Transfer Instructions -----------
+mmm01011 11110000 DDDDDDDD EEEEEEEE LEA     {signedtohex(E*256+D, 16)}h[ER{m*2}]
+00001100 11110000 DDDDDDDD EEEEEEEE LEA     0{tohex(E*256+D, 4)}h
+
+; ----------- Bit Access Instructions -----------
+
+1bbb0000 10100000 DDDDDDDD EEEEEEEE SB      0{tohex(E*256+D, 4)}h.{b}
+; I think Dbitadr == Dadr.bit_offset
+1bbb0010 10100000 DDDDDDDD EEEEEEEE RB      0{tohex(E*256+D, 4)}h.{b}
+1bbb0001 10100000 DDDDDDDD EEEEEEEE TB      0{tohex(E*256+D, 4)}h.{b}
+
+; ----------- Branch Instructions -----------
+
+00000000 1111gggg CCCCCCCC DDDDDDDD B       0{tohex(g, 1)}h:0{tohex(D*256+C, 4)}h
+00000001 1111gggg CCCCCCCC DDDDDDDD BL      0{tohex(g, 1)}h:0{tohex(D*256+C, 4)}h
+
+*
+^ That (second) "star" denote the end of the file, so later
+comments don't need ; or // at first.
+
+
+Comment:
+# k : start block of k-bytes commands.
+All commands must be big-endian.
+Each byte is separated by a space.
+Empty lines are allowed.
+";" can only be used at beginning of line.

@@ -1,0 +1,114 @@
+; content here is used for assembler to work
+; MODIFY CAREFULLY!
+
+
+203C8       smart_strcpy
+203D6       smart_strcat
+@203B8       smart_strlen 
+
+220fe       line_print_col0
+
+@221AC       printline 
+
+22492        hex_byte
+
+@086F8       render_e3d4
+@08704       render_ddd4
+@08704       flush_screen
+
+@08FB8       memzero
+
+@1F99C       reset_routine
+
+29D5C       get_string_constant
+@07EAC       fill_screen
+$081A2       str_decompress_print
+221c4       waitkey
+@0F746       read_key
+;convert read_phy_key result (er0) to key code
+252dc       key_cvt  
+
+119B6       setlr
+
+@0916A       delay
+093FE       _start
+24E36       main
+
+@086E0       buf1_to_buf2
+
+@26226       byte_strlen
+
+@22040       diagnostic_mode
+@2209E       diagnostic
+
+
+@2A048       line_print__call__
+
+@082EC       char_print_1byte
+@082F6       char_print
+
+084D8       char_get_14
+
+085B8       char_get_l14
+0939A       zero_KO
+
+07F00       buffer_clear
+
+084D8		char_get_14      
+; er0: char, er2: output adr
+
+[GADGETS]
+ 
+08f22       r0=0,[er8]+=er2,pop xr8
+203D2	    st r2,[er0]
+130E2       pop QR0
+121a8       pop er0
+2208a       pop xr0
+187D6       pop er4
+0d06c       pop er8
+08f44       pop qr8
+18FE6       pop er12
+20d72       pop ER14
+20d70       jpop er14
+12d34       jpop qr8
+2237a       jpop qr80
+222AC       nop
+09D22       ENTER
+13CD0       LEAVE
+090B0       store_sp_er0
+;084F8   EA magic instr :)
+13ADC       l er0,[er2]
+13916       st er2,[er0]
+13aa8       L er8,[er0] 
+15ee4       mov r2,r0,pop er0
+0ec6c       mov er0,1
+09a1a       mov er2,1
+
+1fbe0       mov er0,er2
+14b14       mov er2,er0
+1e768       mov er0,er4,pop er4
+187e2       add er0,er2
+;14f0c
+12312       or r0,r1
+1b87a       sll r0,4
+;
+13abe       add er4,er0
+17B46       lea [er12]
+203d2       st r2,[er0]
+1c82c       st r2,[ea+]
+204e6       st r2,[ea+], pop xr4, pop qr8
+1D806       and r0,15
+20838       and r0,15
+;19940       and r1,15
+1a45e       and r1,15
+20840       and r1, 15, sll r0, 4, or r1, r0
+187e2       add er0,er2
+;13aa6  add er0 er2
+;14f0c  ~
+;187e2  ~
+;2abf8  ~
+;8eee   ~
+;d112 c4 --> complex mode
+;d11e --> math i/o
+;15ee4
+;f2de mov r2,r1

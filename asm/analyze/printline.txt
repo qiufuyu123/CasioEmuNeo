@@ -1,0 +1,90 @@
+printline(er2)
+{
+    r1 = lineno
+    r0 = 14 // 一行14个字符
+    (*0xd137) = r0 
+    (*0821Ch)()
+}
+0221AC   CE F8              PUSH    LR
+0221AE   00 81              MOV     R1, R0
+0221B0   0E 00              MOV     R0, #14
+0221B2   11 90 37 D1        ST      R0, 0D137h
+0221B6   01 F0 1C 82        BL      00h:0821Ch
+0221BA   8E F2              POP     PC
+
+printlinecall()
+{
+    r0 = 0
+    er8 = er0
+    er10 = er2
+    r13 = 11
+    r0 = *(0x0d137) // 一行字符数
+    if(r0 != 14){
+        r13 = 6
+    }
+
+    r15 = 192  // 0xc0
+    r15 -= r13
+    r12 = 0
+    r3 = 0
+    if(r8 > r15){
+        
+    }
+}
+
+00821C   00 00              MOV     R0, #0
+00821E   CE F8              PUSH    LR
+008220   7E F8              PUSH    QR8
+008222   05 F8              MOV     ER8, ER0
+008224   25 FA              MOV     ER10, ER2
+008226   0B 0D              MOV     R13, #11
+008228   10 90 37 D1        L       R0, 0D137h
+00822C   0E 70              CMP     R0, #14
+00822E   01 C9              BC      EQ, 08232h
+008230   06 0D              MOV     R13, #6
+008232   C0 0F              MOV     R15, #192
+008234   D8 8F              SUB     R15, R13
+008236   00 0C              MOV     R12, #0
+008238   00 03              MOV     R3, #0
+00823A   F7 88              CMP     R8, R15
+00823C   28 C2              BC      GT, 0828Eh
+00823E   A0 92              L       R2, [ER10]
+008240   26 C9              BC      EQ, 0828Eh
+008242   04 72              CMP     R2, #4
+008244   07 C9              BC      EQ, 08254h
+008246   F0 72              CMP     R2, #240
+008248   1F C0              BC      GE, 08288h
+00824A   01 72              CMP     R2, #1
+00824C   0E C8              BC      NE, 0826Ah
+00824E   01 F0 96 82        BL      00h:08296h
+008252   17 CE              BC      AL, 08282h
+008254   10 90 37 D1        L       R0, 0D137h
+008258   0E 70              CMP     R0, #14
+00825A   17 C8              BC      NE, 0828Ah
+00825C   81 EA              ADD     ER10, #1
+00825E   A0 92              L       R2, [ER10]
+008260   85 F0              MOV     ER0, ER8
+008262   01 F0 F6 82        BL      00h:082F6h
+008266   09 18              ADD     R8, #9
+008268   0C CE              BC      AL, 08282h
+00826A   85 F0              MOV     ER0, ER8
+00826C   5E F2              PUSH    ER2
+00826E   01 F0 F6 82        BL      00h:082F6h
+008272   1E F2              POP     ER2
+008274   F1 73              CMP     R3, #241
+008276   04 C9              BC      EQ, 08280h
+008278   F2 73              CMP     R3, #242
+00827A   02 C9              BC      EQ, 08280h
+00827C   D1 88              ADD     R8, R13
+00827E   01 CE              BC      AL, 08282h
+008280   0C 18              ADD     R8, #12
+008282   00 03              MOV     R3, #0
+008284   01 1C              ADD     R12, #1
+008286   01 CE              BC      AL, 0828Ah
+008288   20 83              MOV     R3, R2
+00828A   81 EA              ADD     ER10, #1
+00828C   D6 CE              BC      AL, 0823Ah
+00828E   C0 80              MOV     R0, R12
+008290   A5 F2              MOV     ER2, ER10
+008292   3E F8              POP     QR8
+008294   8E F2              POP     PC

@@ -1,0 +1,20 @@
+Disassembler source code creator
+
+Usage:
+
+Disassembler instruction_set_file_name.txt output_file_name.cpp
+
+*
+
+??? disassembler
+
+Usage:
+
+a.exe file_to_disassemble start_position length output_file_name.txt
+
+start_position, length are:
+   + In decimal if there is no prefix or suffix
+   + In hexadecimal if there is 0x prefix
+   + In octal if there is 0 prefix
+
+Warning: If the disassembler work on invalid code it may crash!
