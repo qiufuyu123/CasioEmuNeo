@@ -28,7 +28,6 @@
 #include <cstring>
 
 
-
 using namespace casioemu;
 
 int main(int argc, char *argv[])
@@ -57,8 +56,12 @@ int main(int argc, char *argv[])
 
 	if (argv_map.find("model") == argv_map.end())
 	{
-		argv_map["model"]="E:/projects/CasioEmuX/models/fx991cnx";
 
+#ifdef DEBUG
+		argv_map["model"]="E:/projects/CasioEmuX/models/fx991cnx";
+#else
+		argv_map["model"]="./fx991cnx";
+#endif
 		// printf("No model path supplied\n");
 		// exit(2);
 	}

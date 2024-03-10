@@ -63,7 +63,7 @@ CodeViewer::CodeViewer(std::string path,casioemu::Emulator *e){
 }
 bool elem_cmp(const CodeElem& a, const CodeElem& b) {
 
-    return a.segment==b.segment && a.offset<b.offset;
+    return get_real_pc(a.segment, a.offset)<get_real_pc(b.segment, b.offset);
 }
 
 CodeViewer::~CodeViewer(){
@@ -215,6 +215,9 @@ void CodeViewer::DrawWindow(){
         
         ImGui::Text("[next]");
         if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
+            if(DebugBreakPoints.find(cur_break_real_pc) != DebugBreakPoints.end()){
+                DebugBreakPoints[cur_break_real_pc]=1;
+            }
             cur_break_real_pc = -1;
             emu->SetPaused(false);
         }
@@ -225,6 +228,9 @@ void CodeViewer::DrawWindow(){
 
         ImGui::Text("[step]");
         if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
+            if(DebugBreakPoints.find(cur_break_real_pc) != DebugBreakPoints.end()){
+                DebugBreakPoints[cur_break_real_pc]=1;
+            }
             cur_break_real_pc = -1;
             emu->SetPaused(false);
             step_debug = true;
