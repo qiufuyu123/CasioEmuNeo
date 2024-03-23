@@ -27,8 +27,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#define DEBUG
-
 using namespace casioemu;
 
 int main(int argc, char *argv[])
