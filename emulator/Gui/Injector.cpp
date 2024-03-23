@@ -28,7 +28,14 @@ void Injector::Show(){
     ImGui::NewLine();
     ImGui::Text("Input your ROP below:");
     ImGuiIO& io = ImGui::GetIO();
-    io.FontGlobalScale = scale;
+    float ddpi, hdpi, vdpi;
+    if (SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi) != 0) {
+        fprintf(stderr, "Failed to obtain DPI information for display 0: %s\n", SDL_GetError());
+        exit(1);
+    }
+    float dpi_scaling = ddpi / 72.f;
+    io.FontGlobalScale = scale*dpi_scaling;
+
     editor.DrawContents(data_buf, range);
     ImGui::EndChild();
     ImGui::SliderInt("Set Input range", &range, 64, 1024);

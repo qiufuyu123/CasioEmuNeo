@@ -12,7 +12,7 @@ debug =True
 showdump = print
 def loadsym():
     global syms
-    with open('./sym.txt','r') as f:
+    with open('./sym.txt','r',encoding="utf-8") as f:
         lines = f.readlines()
         for s in lines:
             flag = 0
@@ -80,7 +80,13 @@ def process(strs,fstpass=True):
     line_num = 1
     for line in strs:
         line = preline(line)
-
+        if line.startswith('#org'):
+            if not fstpass:
+                continue
+            i,p = next_arg(line,True)
+            base_addr = i
+            print("base addr = "+str(i))
+            continue
         if line.startswith(';') or line == '':
             continue
         

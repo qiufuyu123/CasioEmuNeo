@@ -1,0 +1,87 @@
+00D4C8: 
+| 参数: er0(指针) |
+
+a = *er0
+if(a<0xf0){
+    //这步判断猜测用于检测是否是单/双字节字符
+    r1 = 0
+    er2 = er0
+    er0 = er2
+    ret 
+}else{
+    **一坨**
+}
+
+00AF62:
+| 命名: next_char(*addr)
+
+if(*addr >= 0xf0){
+    addr+=2
+}
+else{
+    addr+=1
+}
+return addr
+
+0179C2:
+| 命名 next_char_14(*addr)
+| 参数 er14
+
+next_char_14(er14)
+ret er0 or er14
+
+15eea:
+| check_type
+if(r1 == 0xfb){
+
+}else if(r1 == 0xfd){
+    
+}else if(r1 == 0xfe){
+
+}else if(r1 == 0xfa){
+
+}else if(r0 == 0){
+
+}else if(r0 < 0x20){
+
+}else if(r0 < 0x23){
+
+}else if(r0 == 0x23){
+
+}else if(r0 == 0x24){
+
+}
+...
+if(r0 < 0x40){
+    return 9
+}
+015ECE:
+| 参数 er14(指针)|
+
+er2 = call 00D4C8
+next_char_14()
+check_type()
+ret
+
+0179C2:
+| 参数 er14(指针)
+|     er14(指针，目标地址)
+
+if(015ece < 10){
+
+}
+
+0177DA
+| d180输入区
+
+262b0 cif
+if(er0 <= er2){
+    er0 = er2
+}
+return 
+
+0262B0   27 F0              CMP     ER0, ER2
+0262B2   01 C3              BC      LE, 262B6h
+0262B4   1F FE              RT
+0262B6   25 F0              MOV     ER0, ER2
+0262B8   1F FE              RT

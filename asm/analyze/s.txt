@@ -1,0 +1,22 @@
+
+pop qr8   13560
+30 30 30 30 2e d9 48 D2
+173c4
+pop xr8 
+c0 d9 30 30
+pop QR0
+30 30 18 00 30 30 01 30
+smart_strcpy
+[er8]+=er2,pop xr8
+08 d9 30 30
+st er2,[er0],pop xr8 (8f28)
+24 d9 30 30 
+pop er2
+31 30
+st er2,[er0],pop xr8 (8f28)
+30 30 30 30
+pop ER12
+30 30
+pop ea ... pop xr4
+87 d9 c2 D8
+

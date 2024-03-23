@@ -1,6 +1,7 @@
 ; content here is used for assembler to work
 ; MODIFY CAREFULLY!
 
+086f0       memcpy
 
 203C8       smart_strcpy
 203D6       smart_strcat
@@ -55,8 +56,11 @@ $081A2       str_decompress_print
 07F00       buffer_clear
 
 084D8		char_get_14      
+09060       assign_var
 ; er0: char, er2: output adr
 
+;dbd0       有意思
+;           0f 0e d9 0c 0b 0a 09 08 07 06
 [GADGETS]
  
 08f22       r0=0,[er8]+=er2,pop xr8
@@ -64,6 +68,7 @@ $081A2       str_decompress_print
 130E2       pop QR0
 121a8       pop er0
 2208a       pop xr0
+26920       pop xr8
 187D6       pop er4
 0d06c       pop er8
 08f44       pop qr8
@@ -79,7 +84,9 @@ $081A2       str_decompress_print
 ;084F8   EA magic instr :)
 13ADC       l er0,[er2]
 13916       st er2,[er0]
-13aa8       L er8,[er0] 
+13aa8       L er8,[er0]
+10e52       l r0,[er14]
+1810e       l r0,[er0]
 15ee4       mov r2,r0,pop er0
 0ec6c       mov er0,1
 09a1a       mov er2,1
@@ -92,6 +99,7 @@ $081A2       str_decompress_print
 12312       or r0,r1
 1b87a       sll r0,4
 ;
+262b0       cif
 13abe       add er4,er0
 17B46       lea [er12]
 203d2       st r2,[er0]
@@ -112,3 +120,6 @@ $081A2       str_decompress_print
 ;d11e --> math i/o
 ;15ee4
 ;f2de mov r2,r1
+
+;16d7c好函数，两两byte or运算
+;   r10 byte个数 er12 目标地址 ea 起始地址

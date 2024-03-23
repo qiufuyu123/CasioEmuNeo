@@ -25,6 +25,13 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.FontGlobalScale = 1.0;
+        // Query default monitor resolution
+    
+
+    //int win_w = display_bounds.w * 7 / 8, win_h = display_bounds.h * 7 / 8;
+    //io.FontGlobalScale=dpi_scaling;
+// ...
+    // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\Arial.ttf", dpi_scaling * 14.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //io.WantTextInput = true;
     //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
     
