@@ -16,6 +16,8 @@
 #include <fstream>
 #include <thread>
 
+#include "../Config/Config.hpp"
+
 std::unordered_map<int, uint8_t> DebugBreakPoints;
 
 int get_real_pc(uint8_t seg,uint16_t off){
@@ -175,9 +177,9 @@ void CodeViewer::DrawWindow(){
     if(!is_loaded){
         ImGui::SetNextWindowSize(ImVec2(w*50,h*10));
         ImGui::SetNextWindowContentSize(ImVec2(w*50,h*10));
-        ImGui::Begin("Disassemble Window");
+        ImGui::Begin(EmuGloConfig[UI_DISAS]);
         ImGui::SetCursorPos(ImVec2(w*2,h*5));
-        ImGui::Text("Please wait loading...");
+        ImGui::Text(EmuGloConfig[UI_DISAS_WAITING]);
         ImGui::End();
         return;
     }
@@ -188,12 +190,12 @@ void CodeViewer::DrawWindow(){
     sz.y = h;
     //ImGui::SetNextWindowSize(sz);
     //ImGui::SetNextWindowContentSize(sz);
-    ImGui::Begin("Disassemble Window",0);
+    ImGui::Begin(EmuGloConfig[UI_DISAS],0);
     ImGui::BeginChild("##scrolling",ImVec2(0,-ImGui::GetWindowHeight()/3));
     DrawContent();
     ImGui::EndChild();
     ImGui::Separator();
-    ImGui::Text("Go to Addr:");
+    ImGui::Text(EmuGloConfig[UI_DISAS_GOTO_ADDR]);
     ImGui::SameLine();
     ImGui::SetNextItemWidth(ImGui::CalcTextSize("000000").x);
     ImGui::InputText("##input", adrbuf, 8);
@@ -202,9 +204,9 @@ void CodeViewer::DrawWindow(){
         JumpTo(addr>>16, addr&0x0ffff);
     }
     ImGui::SameLine();
-    ImGui::Checkbox("STEP", &step_debug);
+    ImGui::Checkbox(EmuGloConfig[UI_DISAS_STEP], &step_debug);
     ImGui::SameLine();
-    ImGui::Checkbox("TRACE", &trace_debug);
+    ImGui::Checkbox(EmuGloConfig[UI_DISAS_TRACE], &trace_debug);
     if(cur_break_real_pc != -1){
         ImGui::SameLine();
         ImVec2 pos = ImGui::GetCursorScreenPos();

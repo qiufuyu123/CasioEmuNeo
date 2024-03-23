@@ -8,10 +8,12 @@
 #include "hex.hpp"
 #include "../Peripheral/BatteryBackedRAM.hpp"
 
+#include "../Config/Config.hpp"
+ImVector<ImWchar> ranges;
 DebugUi::DebugUi(casioemu::Emulator *emu)
     :watch_win(emu),inject_win(emu){
     emulator = emu;
-    window = SDL_CreateWindow("CasioEmuX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    window = SDL_CreateWindow(EmuGloConfig[UI_TITLE], SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
     {
@@ -25,6 +27,11 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.FontGlobalScale = 1.0;
+    
+    EmuGloConfig.GetAtlas().AddRanges(io.Fonts->GetGlyphRangesDefault());
+    EmuGloConfig.GetAtlas().BuildRanges(&ranges);
+    io.Fonts->AddFontFromFileTTF("font.ttc", 18.0f, nullptr, ranges.Data);
+    io.Fonts->Build();
         // Query default monitor resolution
     
 
@@ -59,7 +66,7 @@ void DebugUi::PaintUi(){
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
     mem_edit.ReadOnly = false;
-    mem_edit.DrawWindow("Memory Editor", rom_addr, 0x2100,0xd000);
+    mem_edit.DrawWindow(EmuGloConfig[UI_MEMEDIT], rom_addr, 0x2100,0xd000);
     code_viewer->DrawWindow();
     watch_win.Show();
     inject_win.Show();

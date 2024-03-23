@@ -5,13 +5,15 @@
 #include "../Peripheral/BatteryBackedRAM.hpp"
 #include <cstdint>
 
+#include "../Config/Config.hpp"
+
 WatchWindow::WatchWindow(casioemu::Emulator *e){
     emu = e;
     
 }
 
 void WatchWindow::Show(){
-    ImGui::Begin("Watch Window");
+    ImGui::Begin(EmuGloConfig[UI_REPORT_WINDOW]);
     ImGui::BeginChild("##stack_trace",ImVec2(0,ImGui::GetWindowHeight()/4));
     casioemu::Chipset& chipset = emu->chipset;
     std::string s=chipset.cpu.GetBacktrace();
@@ -58,9 +60,9 @@ void WatchWindow::Show(){
     ImGui::EndChild();
     static int range=64;
     ImGui::BeginChild("##stack_view");
-    ImGui::Text("Range of stack:");
+    ImGui::Text(EmuGloConfig[UI_REPORT_RANGE]);
     ImGui::SameLine();
-    ImGui::SliderInt("range", &range, 64, 2048);
+    ImGui::SliderInt(EmuGloConfig[UI_REPORT_RANGE_SLIDER], &range, 64, 2048);
     uint16_t offset = chipset.cpu.reg_sp&0xffff;
     mem_editor.DrawContents(casioemu::BatteryBackedRAM::rom_addr+ offset-0xd000, range,offset);
     ImGui::EndChild();

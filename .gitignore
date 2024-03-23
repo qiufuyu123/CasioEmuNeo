@@ -10,3 +10,4 @@ models/*/*.names
 ignore/
 build/
 imgui.ini
+font.ttc

@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+
+#include "../Config/Config.hpp"
 Injector::Injector(casioemu::Emulator*e){
     emu = e;
     data_buf = new char[1024];
@@ -13,20 +15,25 @@ Injector::Injector(casioemu::Emulator*e){
 }
 
 void Injector::Show(){
-    ImGui::Begin("Injector & Settings");
+    ImGui::Begin(EmuGloConfig[UI_INJECTOR]);
     
-    static float scale = 1.0f;
+    static float scale = -1.0f;
     static int range = 64;
     static char strbuf[1024]={0};
     static char buf[10]={0};
     static MemoryEditor editor;
-    static std::string info_msg;
+    static char* info_msg;
     ImGui::BeginChild("##ropinput",ImVec2(0,ImGui::GetWindowHeight()*0.6));
-    ImGui::Text("Change UI Scale:");
+    ImGui::Text(EmuGloConfig[UI_CHANGE_SCALE]);
     ImGui::SameLine();
-    ImGui::SliderFloat("scale", &scale, 0.01f, 2.0f);
+    if(scale == -1.0f){
+        scale = EmuGloConfig.GetScale();
+    }
+    if(ImGui::SliderFloat(EmuGloConfig[UI_CHANGE_SCALE_SLIDER], &scale, 0.01f, 2.0f)){
+        EmuGloConfig.SetScale(scale);
+    }
     ImGui::NewLine();
-    ImGui::Text("Input your ROP below:");
+    ImGui::Text(EmuGloConfig[UI_ROP_INPUT]);
     ImGuiIO& io = ImGui::GetIO();
     float ddpi, hdpi, vdpi;
     if (SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi) != 0) {
@@ -38,18 +45,18 @@ void Injector::Show(){
 
     editor.DrawContents(data_buf, range);
     ImGui::EndChild();
-    ImGui::SliderInt("Set Input range", &range, 64, 1024);
-    ImGui::Text("'an' offset (an+??? mode):");
+    ImGui::SliderInt(EmuGloConfig[UI_ROP_SETINPUTRANGE], &range, 64, 1024);
+    ImGui::Text(EmuGloConfig[UI_ROP_ANOFFSET]);
     ImGui::SameLine();
     ImGui::InputText("offset", buf, 9);
     char *base_addr = casioemu::BatteryBackedRAM::rom_addr;
     if(ImGui::Button("Math I/O")){
         *(base_addr+0xd112 - 0xd000)= 0xc4;
         *(base_addr+0xd11e - 0xd000)= 0x00;
-        info_msg = "Already Convert Emulator into Linear Math I/O!";
+        info_msg = EmuGloConfig[UI_INFO1];
         ImGui::OpenPopup("info");
     }
-    if(ImGui::Button("Enter 'an' offset")){
+    if(ImGui::Button(EmuGloConfig[UI_ROP_ENTERAN])){
         int off = atoi(buf);
         if(off>100){
             memset(base_addr+0xd180-0xd000, 0x31, 100);
@@ -60,19 +67,19 @@ void Injector::Show(){
         }
         *(base_addr+0xd180-0xd000+off)= 0xfd;
         *(base_addr+0xd180-0xd000+off+1)= 0x20;
-        info_msg = "Already loaded offset into emulator!\nNow please press [->], [=] manually!\nPlease make sure you're in Line I/0!";
+        info_msg = EmuGloConfig[UI_INFO2];
         ImGui::OpenPopup("info");
     }
-    if(ImGui::Button("Load ROP")){
+    if(ImGui::Button(EmuGloConfig[UI_ROP_LOAD])){
         memcpy(base_addr+0xd180-0xd000,data_buf,range);
-        info_msg = "Already loaded ROP data into emulator!\nNow please press [->], [=] manually!";
+        info_msg = EmuGloConfig[UI_INFO3];
         ImGui::OpenPopup("info");
     }
-    if(ImGui::Button("Load ROP from string")){
+    if(ImGui::Button(EmuGloConfig[UI_ROP_LOADFROMSTR])){
         
         int j = 0;
         int i = 0;
-        info_msg = "Already loaded ROP data into emulator!\nNow please press [->], [=] manually!";
+        info_msg = EmuGloConfig[UI_INFO3];
         while (strbuf[i] != '\0') {
             if(strbuf[i] == ' ' || strbuf[i] == '\n'){
                 j++;
@@ -104,7 +111,7 @@ void Injector::Show(){
     ImGui::InputTextMultiline("Input hex string. use ' ' to split", strbuf, 1023);
     
     if(ImGui::BeginPopupModal("info",0,ImGuiWindowFlags_AlwaysAutoResize)){
-        ImGui::Text(info_msg.c_str());
+        ImGui::Text(info_msg);
         if(ImGui::Button("OK")){
             ImGui::CloseCurrentPopup();
         }
