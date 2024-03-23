@@ -30,7 +30,7 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
     
     EmuGloConfig.GetAtlas().AddRanges(io.Fonts->GetGlyphRangesDefault());
     EmuGloConfig.GetAtlas().BuildRanges(&ranges);
-    io.Fonts->AddFontFromFileTTF("font.ttc", 18.0f, nullptr, ranges.Data);
+    io.Fonts->AddFontFromFileTTF(EmuGloConfig.GetFontPath().data(), 18.0f, nullptr, ranges.Data);
     io.Fonts->Build();
         // Query default monitor resolution
     

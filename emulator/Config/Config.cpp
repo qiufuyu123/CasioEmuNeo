@@ -70,6 +70,15 @@ EmuConfig::EmuConfig(const char *f){
 
 }
 
+std::string EmuConfig::GetFontPath(){
+    if(root.has("settings")){
+        if(root["settings"].has("font")){
+            return root["settings"]["font"];
+        }
+    }
+    return "unifont.otf";
+}
+
 float EmuConfig::GetScale(){
     if(!root.has("settings"))
         return 1.0;

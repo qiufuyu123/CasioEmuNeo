@@ -61,6 +61,8 @@ public:
 
     char* operator[](int idx);
 
+    std::string GetFontPath();
+
 };
 
 extern EmuConfig EmuGloConfig;
