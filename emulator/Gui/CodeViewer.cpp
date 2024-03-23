@@ -144,6 +144,9 @@ void CodeViewer::DrawContent(){
                 ImGui::GetWindowDrawList()
                     ->AddRectFilled(pos, ImVec2(pos.x + ImGui::GetWindowWidth(),pos.y +ImGui::GetTextLineHeight()),IM_COL32(255,255,0,50));
                 ImGui::TextColored(ImVec4(0.0,1.0,0.0,1.0),"[ > ]");
+                if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
+                    DebugBreakPoints.erase(realpc);
+                }
             }
         
             ImGui::SameLine();
