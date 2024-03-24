@@ -8,9 +8,9 @@ namespace casioemu
 {
 	class StandbyControl : public Peripheral
 	{
-		MMURegion region_stpacp, region_sbycon;
-		uint8_t stpacp_last;
-		bool stop_acceptor_enabled;
+		MMURegion region_stpacp, region_sbycon, region_F312;
+		uint8_t stpacp_last, F312_last;
+		bool stop_acceptor_enabled, shutdown_acceptor_enabled;
 
 	public:
 		using Peripheral::Peripheral;
@@ -19,4 +19,3 @@ namespace casioemu
 		void Reset();
 	};
 }
-

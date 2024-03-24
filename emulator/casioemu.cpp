@@ -28,7 +28,7 @@
 #include <cstring>
 
 using namespace casioemu;
-
+#define DEBUG
 int main(int argc, char *argv[])
 {
 	std::map<std::string, std::string> argv_map;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 	{
 
 #ifdef DEBUG
-		argv_map["model"]="E:/projects/CasioEmuX/models/fx991cnx";
+		argv_map["model"]="E:/projects/CasioEmuX/models/fx999cncw";
 #else
 		argv_map["model"]="./fx991cnx";
 #endif

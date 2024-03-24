@@ -1,5 +1,6 @@
 #include "MMU.hpp"
 
+#include <cstdio>
 #include <cstring>
 #include "../Emulator.hpp"
 #include "Chipset.hpp"
@@ -249,6 +250,9 @@ namespace casioemu
 	{
 		for (size_t ix = region->base; ix != region->base + region->size; ++ix)
 		{
+			if(ix == 561152){
+				printf("s");
+			}
 			if (segment_dispatch[ix >> 16][ix & 0xFFFF].region)
 				PANIC("MMU region overlap at %06zX\n", ix);
 			segment_dispatch[ix >> 16][ix & 0xFFFF].region = region;

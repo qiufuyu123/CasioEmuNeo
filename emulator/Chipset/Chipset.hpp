@@ -88,6 +88,8 @@ namespace casioemu
 		void SetInterruptPendingSFR(size_t index);
 		bool GetInterruptPendingSFR(size_t index);
 
+		bool GetRunningState();
+
 		void Tick();
 		bool GetRequireFrame();
 		void Frame();

@@ -27,8 +27,8 @@ namespace casioemu
 			OFFSET, // bytes
 			ROW_SIZE_DISP; // bytes used to display
 
-		MMURegion region_buffer, region_contrast, region_mode, region_range;
-		uint8_t *screen_buffer, screen_contrast, screen_mode, screen_range;
+		MMURegion region_buffer, region_buffer1, region_contrast, region_mode, region_range;
+		uint8_t *screen_buffer, *screen_buffer1, screen_contrast, screen_mode, screen_range;
 
 	    SDL_Renderer *renderer;
 	    SDL_Texture *interface_texture;
@@ -93,6 +93,11 @@ namespace casioemu
 		void Frame();
 	};
 
+	template <> const int Screen<HW_CLASSWIZ_II>::N_ROW = 63;
+	template <> const int Screen<HW_CLASSWIZ_II>::ROW_SIZE = 32;
+	template <> const int Screen<HW_CLASSWIZ_II>::OFFSET = 32;
+	template <> const int Screen<HW_CLASSWIZ_II>::ROW_SIZE_DISP = 24;
+
 	template <> const int Screen<HW_CLASSWIZ>::N_ROW = 63;
 	template <> const int Screen<HW_CLASSWIZ>::ROW_SIZE = 32;
 	template <> const int Screen<HW_CLASSWIZ>::OFFSET = 32;
@@ -106,6 +111,30 @@ namespace casioemu
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic" // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61491
 	// Note: SPR_PIXEL must be the first enum member and SPR_MAX must be the last one.
+	template <> enum Screen<HW_CLASSWIZ_II>::Sprite :unsigned
+	{
+		SPR_PIXEL,
+		SPR_S,
+		SPR_MATH,
+		SPR_D,
+		SPR_R,
+		SPR_G,
+		SPR_FIX,
+		SPR_SCI,
+		SPR_E,
+		SPR_CMPLX,
+		SPR_ANGLE,
+		SPR_WDOWN,
+		SPR_VERIFY,
+		SPR_LEFT,
+		SPR_DOWN,
+		SPR_UP,
+		SPR_RIGHT,
+		SPR_PAUSE,
+		SPR_SUN,
+		SPR_MAX
+	};
+
 	template <> enum Screen<HW_CLASSWIZ>::Sprite : unsigned
 	{
 		SPR_PIXEL,
@@ -158,6 +187,28 @@ namespace casioemu
 
 #pragma GCC diagnostic pop
 
+
+	template<> const SpriteBitmap Screen<HW_CLASSWIZ_II>::sprite_bitmap[SPR_MAX] = {
+		{"rsd_pixel",    0,    0},
+		{"rsd_s",     0x01, 0x01},
+		{"rsd_math",  0x01, 0x03},
+		{"rsd_d",     0x01, 0x04},
+		{"rsd_r",     0x01, 0x05},
+		{"rsd_g",     0x01, 0x06},
+		{"rsd_fix",   0x01, 0x07},
+		{"rsd_sci",   0x01, 0x08},
+		{"rsd_e",     0x01, 0x0A},
+		{"rsd_cmplx", 0x01, 0x0B},
+		{"rsd_angle", 0x01, 0x0C},
+		{"rsd_wdown", 0x01, 0x0D},
+		{"rsd_verify",0x01, 0x0E},
+		{"rsd_left",  0x01, 0x10},
+		{"rsd_down",  0x01, 0x11},
+		{"rsd_up",    0x01, 0x12},
+		{"rsd_right", 0x01, 0x13},
+		{"rsd_pause", 0x01, 0x15},
+		{"rsd_sun",   0x01, 0x16}
+	};
 
 	template<> const SpriteBitmap Screen<HW_CLASSWIZ>::sprite_bitmap[SPR_MAX] = {
 		{"rsd_pixel",    0,    0},
@@ -238,19 +289,39 @@ namespace casioemu
 			this_obj->screen_buffer[offset] = data;
 		}, emulator);
 
+		if (emulator.hardware_id == HW_CLASSWIZ_II) {
+			screen_buffer1 = new uint8_t[(N_ROW + 1) * ROW_SIZE];
+			region_buffer1.Setup(0x89000, (N_ROW + 1) * ROW_SIZE, "Screen/Buffer1", this, [](MMURegion* region, size_t offset) {
+				offset -= region->base;
+				if (offset % ROW_SIZE >= ROW_SIZE_DISP)
+					return (uint8_t)0;
+				return ((Screen*)region->userdata)->screen_buffer1[offset];
+				}, [](MMURegion* region, size_t offset, uint8_t data) {
+					offset -= region->base;
+					if (offset % ROW_SIZE >= ROW_SIZE_DISP)
+						return;
+
+					auto this_obj = (Screen*)region->userdata;
+					// * Set require_frame to true only if the value changed.
+					this_obj->require_frame |= this_obj->screen_buffer1[offset] != data;
+					this_obj->screen_buffer1[offset] = data;
+				}, emulator);
+		}
+
 		region_range.Setup(0xF030, 1, "Screen/Range", this, DefaultRead<uint8_t, 0x07, &Screen::screen_range>,
 				SetRequireFrameWrite<uint8_t, 0x07, &Screen::screen_range>, emulator);
 
 		region_mode.Setup(0xF031, 1, "Screen/Mode", this, DefaultRead<uint8_t, 0x07, &Screen::screen_mode>,
 				SetRequireFrameWrite<uint8_t, 0x07, &Screen::screen_mode>, emulator);
 
-		region_contrast.Setup(0xF032, 1, "Screen/Contrast", this, DefaultRead<uint8_t, 0x1F, &Screen::screen_contrast>,
-				SetRequireFrameWrite<uint8_t, 0x1F, &Screen::screen_contrast>, emulator);
+		region_contrast.Setup(0xF032, 1, "Screen/Contrast", this, DefaultRead<uint8_t, 0x3F, &Screen::screen_contrast>,
+				SetRequireFrameWrite<uint8_t, 0x3F, &Screen::screen_contrast>, emulator);
 	}
 
 	template<HardwareId hardware_id> void Screen<hardware_id>::Uninitialise()
 	{
 		delete[] screen_buffer;
+		delete[] screen_buffer1;
 	}
 
 	template<HardwareId hardware_id> void Screen<hardware_id>::Frame()
@@ -310,19 +381,42 @@ namespace casioemu
 		{
 			static constexpr auto SPR_PIXEL = Sprite::SPR_PIXEL;
 			SDL_Rect dest = Screen<hardware_id>::sprite_info[SPR_PIXEL].dest;
-			for (int iy = 0; iy != N_ROW; ++iy)
-			{
-				dest.x = sprite_info[SPR_PIXEL].dest.x;
-				dest.y = sprite_info[SPR_PIXEL].dest.y + iy * sprite_info[SPR_PIXEL].src.h;
-				for (int ix = 0; ix != ROW_SIZE_DISP; ++ix)
+			int ink_alpha = ink_alpha_off;
+			if (emulator.hardware_id == HW_CLASSWIZ_II) {
+				for (int iy = 0; iy != N_ROW; ++iy)
 				{
-					for (uint8_t mask = 0x80; mask; mask >>= 1, dest.x += sprite_info[SPR_PIXEL].src.w)
+					dest.x = sprite_info[SPR_PIXEL].dest.x;
+					dest.y = sprite_info[SPR_PIXEL].dest.y + iy * sprite_info[SPR_PIXEL].src.h;
+					for (int ix = 0; ix != ROW_SIZE_DISP; ++ix)
 					{
-						if (!clear_dots && screen_buffer[iy * ROW_SIZE + OFFSET + ix] & mask)
-							SDL_SetTextureAlphaMod(interface_texture, ink_alpha_on);
-						else
-							SDL_SetTextureAlphaMod(interface_texture, ink_alpha_off);
-						SDL_RenderCopy(renderer, interface_texture, &sprite_info[SPR_PIXEL].src, &dest);
+						for (uint8_t mask = 0x80; mask; mask >>= 1, dest.x += sprite_info[SPR_PIXEL].src.w)
+						{
+							ink_alpha = ink_alpha_off;
+							if (!clear_dots && screen_buffer[iy * ROW_SIZE + OFFSET + ix] & mask)
+								ink_alpha += (ink_alpha_on - ink_alpha_off) * 0.3;
+							if (!clear_dots && screen_buffer1[iy * ROW_SIZE + OFFSET + ix] & mask)
+								ink_alpha += (ink_alpha_on - ink_alpha_off) * 0.7;
+							SDL_SetTextureAlphaMod(interface_texture, ink_alpha);
+							SDL_RenderCopy(renderer, interface_texture, &sprite_info[SPR_PIXEL].src, &dest);
+						}
+					}
+				}
+			}
+			else {
+				for (int iy = 0; iy != N_ROW; ++iy)
+				{
+					dest.x = sprite_info[SPR_PIXEL].dest.x;
+					dest.y = sprite_info[SPR_PIXEL].dest.y + iy * sprite_info[SPR_PIXEL].src.h;
+					for (int ix = 0; ix != ROW_SIZE_DISP; ++ix)
+					{
+						for (uint8_t mask = 0x80; mask; mask >>= 1, dest.x += sprite_info[SPR_PIXEL].src.w)
+						{
+							if (!clear_dots && screen_buffer[iy * ROW_SIZE + OFFSET + ix] & mask)
+								SDL_SetTextureAlphaMod(interface_texture, ink_alpha_on);
+							else
+								SDL_SetTextureAlphaMod(interface_texture, ink_alpha_off);
+							SDL_RenderCopy(renderer, interface_texture, &sprite_info[SPR_PIXEL].src, &dest);
+						}
 					}
 				}
 			}
@@ -339,6 +433,8 @@ namespace casioemu
 		case HW_CLASSWIZ:
 			return new Screen<HW_CLASSWIZ>(emulator);
 
+		case HW_CLASSWIZ_II:
+			return new Screen<HW_CLASSWIZ_II>(emulator);
 		default:
 			PANIC("Unknown hardware id\n");
 		}

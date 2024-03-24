@@ -14,7 +14,8 @@ namespace casioemu
 		uint8_t data_F024, data_control;
 
 		InterruptSource interrupt_source;
-
+		bool real_hardware;
+		bool TimerSkipped;
 		bool raise_required;
 		uint64_t ext_to_int_counter, ext_to_int_next, ext_to_int_int_done;
 		static const uint64_t ext_to_int_frequency = 10000;

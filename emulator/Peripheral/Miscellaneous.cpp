@@ -31,6 +31,9 @@ namespace casioemu
 		case HW_CLASSWIZ:
 			n_byte = 13;
 			break;
+		case HW_CLASSWIZ_II:
+			n_byte = 14;
+			break;
 		default:
 			PANIC("Unknown hardware_id\n");
 		}

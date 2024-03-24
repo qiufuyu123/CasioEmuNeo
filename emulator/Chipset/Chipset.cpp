@@ -13,6 +13,7 @@
 #include "../Peripheral/StandbyControl.hpp"
 #include "../Peripheral/Miscellaneous.hpp"
 #include "../Peripheral/Timer.hpp"
+#include "../Peripheral/BCDCalc.hpp"
 
 #include "../Gui/ui.hpp"
 
@@ -34,8 +35,8 @@ namespace casioemu
 
 		cpu.SetMemoryModel(CPU::MM_LARGE);
 
-		std::initializer_list<int> segments_es_plus {0, 1, 8}, segments_classwiz {0, 1, 2, 3, 4, 5};
-		for (auto segment_index : emulator.hardware_id == HW_ES_PLUS ? segments_es_plus : segments_classwiz)
+		std::initializer_list<int> segments_es_plus{ 0, 1, 8 }, segments_classwiz{ 0, 1, 2, 3, 4, 5 }, segments_classwiz_ii{ 0,1,2,3,4,5,6,7,8 };
+		for (auto segment_index : emulator.hardware_id == HW_ES_PLUS ? segments_es_plus : emulator.hardware_id == HW_CLASSWIZ ? segments_classwiz : segments_classwiz_ii)
 			mmu.GenerateSegmentDispatch(segment_index);
 
 		ConstructPeripherals();
@@ -72,6 +73,8 @@ namespace casioemu
 		peripherals.push_front(new StandbyControl(emulator));
 		peripherals.push_front(new Miscellaneous(emulator));
 		peripherals.push_front(new Timer(emulator));
+		if (emulator.hardware_id == HW_CLASSWIZ_II)
+			peripherals.push_front(new BCDCalc(emulator));
 	}
 
 	void Chipset::DestructPeripherals()
@@ -139,6 +142,13 @@ namespace casioemu
 		run_mode = RM_STOP;
 	}
 
+	bool Chipset::GetRunningState()
+	{
+		if(run_mode == RM_RUN)
+			return true;
+		return false;
+	}
+	
 	void Chipset::RaiseEmulator()
 	{
 		if (interrupts_active[INT_EMULATOR])
