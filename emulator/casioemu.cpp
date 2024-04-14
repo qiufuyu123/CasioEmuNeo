@@ -179,12 +179,12 @@ int main(int argc, char *argv[])
 					emulator.Shutdown();
 					break;
 				case SDL_WINDOWEVENT_RESIZED:
-					// if (!argv_map.count("resizable"))
-					// {
-					// 	// Normally, in this case, the window manager should not
-					// 	// send resized event, but some still does (such as xmonad)
-					// 	break;
-					// }
+					 if (!emulator.IsResizable())
+					 {
+					 	// Normally, in this case, the window manager should not
+					 	// send resized event, but some still does (such as xmonad)
+					 	break;
+					 }
 					ImGui_ImplSDL2_ProcessEvent(&event);
 					if(event.window.windowID == SDL_GetWindowID(emulator.window)){
 					emulator.WindowResize(event.window.data1, event.window.data2);
