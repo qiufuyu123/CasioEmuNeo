@@ -4,7 +4,7 @@
 #include "Chipset.hpp"
 #include "MMU.hpp"
 
-#include "../Gui/ui.hpp"
+#include "../Gui/Ui.hpp"
 
 namespace casioemu
 {

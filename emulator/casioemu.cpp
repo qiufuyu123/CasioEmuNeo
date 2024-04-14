@@ -1,6 +1,6 @@
 #include "Config.hpp"
 #include "Gui/imgui_impl_sdl2.h"
-#include "Gui/ui.hpp"
+#include "Gui/Ui.hpp"
 
 #include <SDL.h>
 #include <SDL_image.h>

@@ -15,7 +15,7 @@
 #include "../Peripheral/Timer.hpp"
 #include "../Peripheral/BCDCalc.hpp"
 
-#include "../Gui/ui.hpp"
+#include "../Gui/Ui.hpp"
 
 #include <fstream>
 #include <algorithm>
