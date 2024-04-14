@@ -78,7 +78,8 @@ namespace casioemu
 			SDL_WINDOWPOS_UNDEFINED,
 			width, height,
 			SDL_WINDOW_SHOWN |
-			(SDL_WINDOW_RESIZABLE)
+//			(SDL_WINDOW_RESIZABLE)
+            (IsResizable() ? SDL_WINDOW_RESIZABLE : 0)
 		);
 		if (!window)
 			PANIC("SDL_CreateWindow failed: %s\n", SDL_GetError());
@@ -518,4 +519,11 @@ namespace casioemu
 				waiting.front().notify_one(); // the notify_one must be called while m is locked, otherwise the condition variable might be destroyed (as noted on https://en.cppreference.com/w/cpp/thread/condition_variable/notify_one)
 		}
 	}
+
+    bool Emulator::IsResizable() {
+        if (argv_map.find("resizable") != argv_map.end() && argv_map["resizable"] == "0") {
+            return false;
+        }
+        return true;
+    }
 }

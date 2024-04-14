@@ -123,6 +123,12 @@ namespace casioemu
 		ModelInfo GetModelInfo(std::string key);
 		std::string GetModelFilePath(std::string relative_path);
 
+        /**
+         * We make the UI resizable by default
+         * You can also specify a negative config parameter to disable this: resizable=0
+         */
+        bool IsResizable();
+
 		friend class ModelInfo;
 		friend class CPU;
 		friend class MMU;
