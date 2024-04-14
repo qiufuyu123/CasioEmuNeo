@@ -5,7 +5,7 @@
 #include "../Emulator.hpp"
 #include "../Chipset/Chipset.hpp"
 #include "../Logger.hpp"
-#include "../Gui/ui.hpp"
+#include "../Gui/Ui.hpp"
 #include <fstream>
 #include <cstring>
 
