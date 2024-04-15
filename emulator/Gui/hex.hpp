@@ -66,6 +66,8 @@
 #pragma warning (disable: 4996) // warning C4996: 'sprintf': This function or variable may be unsafe.
 #endif
 
+#include <optional>
+
 struct MemoryEditor
 {
     enum DataFormat
@@ -75,6 +77,13 @@ struct MemoryEditor
         DataFormat_Hex = 2,
         DataFormat_COUNT
     };
+
+    struct MarkedSpan {
+        size_t start{};
+        size_t length{};
+        ImColor color{};
+    };
+    using OptionalMarkedSpans = std::optional<std::vector<MarkedSpan>>;
 
     // Settings
     bool            Open;                                       // = true   // set to false when DrawWindow() was closed. ignore if not using DrawWindow().
@@ -186,7 +195,7 @@ struct MemoryEditor
     }
 
     // Standalone Memory Editor window
-    void DrawWindow(const char* title, void* mem_data, size_t mem_size, size_t base_display_addr = 0x0000)
+    void DrawWindow(const char* title, void* mem_data, size_t mem_size, size_t base_display_addr = 0x0000, const OptionalMarkedSpans& marked_spans = {})
     {
         Sizes s;
         CalcSizes(s, mem_size, base_display_addr);
@@ -198,7 +207,7 @@ struct MemoryEditor
         {
             if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
                 ImGui::OpenPopup("context");
-            DrawContents(mem_data, mem_size, base_display_addr);
+            DrawContents(mem_data, mem_size, base_display_addr, marked_spans);
             if (ContentsWidthChanged)
             {
                 CalcSizes(s, mem_size, base_display_addr);
@@ -209,7 +218,7 @@ struct MemoryEditor
     }
 
     // Memory Editor contents only
-    void DrawContents(void* mem_data_void, size_t mem_size, size_t base_display_addr = 0x0000)
+    void DrawContents(void* mem_data_void, size_t mem_size, size_t base_display_addr = 0x0000, const OptionalMarkedSpans& marked_spans = {})
     {
         if (Cols < 1)
             Cols = 1;
@@ -275,6 +284,44 @@ struct MemoryEditor
             {
                 size_t addr = (size_t)(line_i * Cols);
                 ImGui::Text(format_address, s.AddrDigitsCount, base_display_addr + addr);
+
+                auto intersect_range = [](
+                        size_t range1_s, size_t range1_e, size_t range2_s, size_t range2_e
+                ) -> std::optional<std::pair<size_t, size_t>> {
+                    if (range2_s > range1_e || range1_s > range2_e) return {};
+                    auto out_s = std::max(range1_s, range2_s);
+                    auto out_e = std::min(range1_e, range2_e);
+                    return std::pair(out_s, out_e);
+                };
+
+                auto line_start_n = line_i * Cols;
+                auto line_end_n = line_start_n + Cols - 1;
+
+                if (marked_spans.has_value()) {
+                    auto &spans = marked_spans.value();
+                    for (auto &span: spans) {
+                        auto intersection = intersect_range(
+                                span.start - base_display_addr,
+                                span.start - base_display_addr + span.length - 1,
+                                line_start_n, line_end_n
+                        );
+                        if (!intersection.has_value()) {
+                            // no intersection; this line has no marked span to draw
+                            continue;
+                        }
+
+                        size_t intxn_start = intersection->first;
+                        size_t intxn_end = intersection->second;
+                        assert(intxn_start >= line_start_n && intxn_end <= line_end_n);
+
+                        auto &color = span.color;
+                        auto pos_tmp = ImGui::GetCursorScreenPos();
+                        auto line_first_hex_pos = ImVec2(pos_tmp.x + s.GlyphWidth * 6, pos_tmp.y - s.LineHeight);
+                        auto start_pos = ImVec2(line_first_hex_pos.x + s.HexCellWidth * (float) (intxn_start % Cols), line_first_hex_pos.y);
+                        auto end_pos = ImVec2(line_first_hex_pos.x + s.HexCellWidth * (float) (intxn_end % Cols + 1), line_first_hex_pos.y + s.LineHeight);
+                        draw_list->AddRectFilled(start_pos, end_pos, color);
+                    }
+                }
 
                 // Draw Hexadecimal
                 for (int n = 0; n < Cols && addr < mem_size; n++, addr++)

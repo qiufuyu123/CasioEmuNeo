@@ -58,6 +58,9 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
 }
 
 void DebugUi::PaintUi(){
+    assert(MARKED_SPANS != nullptr /* initialized in casioemu.cpp */);
+    auto &marked_spans = *MARKED_SPANS;
+
     static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -66,7 +69,7 @@ void DebugUi::PaintUi(){
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
     mem_edit.ReadOnly = false;
-    mem_edit.DrawWindow(EmuGloConfig[UI_MEMEDIT], rom_addr, 0x2100,0xd000);
+    mem_edit.DrawWindow(EmuGloConfig[UI_MEMEDIT], rom_addr, MEM_EDIT_MEM_SIZE, MEM_EDIT_BASE_ADDR, marked_spans);
     code_viewer->DrawWindow();
     watch_win.Show();
     inject_win.Show();
@@ -81,6 +84,7 @@ void DebugUi::PaintUi(){
 }
  
 CodeViewer* DebugUi::code_viewer = nullptr;
+MemoryEditor::OptionalMarkedSpans* DebugUi::MARKED_SPANS = nullptr;
 
 void gui_loop(){
     

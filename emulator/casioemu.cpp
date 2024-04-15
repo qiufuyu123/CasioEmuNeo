@@ -1,6 +1,7 @@
 #include "Config.hpp"
 #include "Gui/imgui_impl_sdl2.h"
 #include "Gui/Ui.hpp"
+#include "utils.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -14,6 +15,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <filesystem>
 
 #include "Emulator.hpp"
 #include "Logger.hpp"
@@ -82,7 +84,16 @@ int main(int argc, char *argv[])
 	{
 		
 	}
-	
+
+    const char *colored_spans_file = "./colored-spans";
+    if (std::filesystem::exists(colored_spans_file)) {
+        auto spans = casioemu::parseColoredSpansConfig(colored_spans_file);
+        auto leak = new std::optional(spans);
+        DebugUi::MARKED_SPANS = leak;
+    } else {
+        DebugUi::MARKED_SPANS = new std::optional<std::vector<MemoryEditor::MarkedSpan>>();
+    }
+
 	// while(1)
 	// 	;
 	{
