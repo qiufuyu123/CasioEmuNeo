@@ -13,7 +13,7 @@ casioemu::Exception::Exception(std::string _msg) : msg(std::move(_msg)) {}
 std::vector<MemoryEditor::MarkedSpan> casioemu::parseColoredSpansConfig(const char *path) {
     auto result = std::vector<MemoryEditor::MarkedSpan>();
 
-    std::ifstream file("/home/bczhc/code/c/text");
+    std::ifstream file(path);
     if (!file.is_open()) {
         throw Exception("Failed to open the file.");
     }
