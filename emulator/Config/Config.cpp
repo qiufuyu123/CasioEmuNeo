@@ -79,6 +79,15 @@ std::string EmuConfig::GetFontPath(){
     return "unifont.otf";
 }
 
+std::string EmuConfig::GetModulePath(){
+    if(root.has("settings")){
+        if(root["settings"].has("model")){
+            return root["settings"]["model"];
+        }
+    }
+    return "unifont.otf";
+}
+
 float EmuConfig::GetScale(){
     if(!root.has("settings"))
         return 1.0;

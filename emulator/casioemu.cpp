@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include "Config/Config.hpp"
 #include "Gui/imgui_impl_sdl2.h"
 #include "Gui/Ui.hpp"
 
@@ -28,7 +29,7 @@
 #include <cstring>
 
 using namespace casioemu;
-#define DEBUG
+// #define DEBUG
 int main(int argc, char *argv[])
 {
 	std::map<std::string, std::string> argv_map;
@@ -57,9 +58,9 @@ int main(int argc, char *argv[])
 	{
 
 #ifdef DEBUG
-		argv_map["model"]="E:/projects/CasioEmuX/models/fx999cncw";
+		argv_map["model"]="E:/projects/CasioEmuX/models/fx991cncw";
 #else
-		argv_map["model"]="./fx991cnx";
+		argv_map["model"]=EmuGloConfig.GetModulePath();
 #endif
 		// printf("No model path supplied\n");
 		// exit(2);

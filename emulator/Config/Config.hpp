@@ -63,6 +63,8 @@ public:
 
     std::string GetFontPath();
 
+    std::string GetModulePath();
+
 };
 
 extern EmuConfig EmuGloConfig;
