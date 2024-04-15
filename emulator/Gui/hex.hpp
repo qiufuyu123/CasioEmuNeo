@@ -99,7 +99,7 @@ struct MemoryEditor
     size_t          DataPreviewAddr;
     size_t          DataEditingAddr;
     bool            DataEditingTakeFocus;
-    char            DataInputBuf[32];
+    char            DataInputBuf[0x2100 + 1];
     char            AddrInputBuf[32];
     size_t          GotoAddr;
     size_t          HighlightMin, HighlightMax;
@@ -353,13 +353,19 @@ struct MemoryEditor
                             data_write = data_next = true;
                         if (data_editing_addr_next != (size_t)-1)
                             data_write = data_next = false;
-                        unsigned int data_input_value = 0;
-                        if (data_write && sscanf(DataInputBuf, "%X", &data_input_value) == 1)
-                        {
-                            if (WriteFn)
-                                WriteFn(mem_data, addr, (ImU8)data_input_value);
-                            else
-                                mem_data[addr] = (ImU8)data_input_value;
+
+                        if (data_write) {
+                            for (size_t i = 0; ; ++i) {
+                                auto buf = DataInputBuf;
+                                if (buf[i * 2] == '\0' || buf[i * 2 + 1] == '\0') break;
+                                char byte_buf[] = {buf[i * 2], buf[i * 2 + 1]};
+                                uint8_t input_value = strtoul(byte_buf, nullptr, 16);
+                                if (WriteFn) {
+                                    WriteFn(mem_data, addr + i, input_value);
+                                } else {
+                                    mem_data[addr + i] = input_value;
+                                }
+                            }
                         }
                         ImGui::PopID();
                     }
