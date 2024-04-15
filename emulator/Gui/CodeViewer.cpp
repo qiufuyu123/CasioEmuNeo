@@ -104,7 +104,7 @@ bool CodeViewer::TryTrigBP(uint8_t seg,uint16_t offset,bool bp_mode){
     if( !bp_mode &&( debug_flags & DEBUG_STEP || debug_flags & DEBUG_RET_TRACE)){
         int idx=0;
         LookUp(seg, offset,&idx);
-        DebugBreakPoints[realpc] = 2;
+        DebugBreakPoints[realpc] = 3;
         cur_col=idx;
         need_roll=true;
         cur_break_real_pc = realpc;
@@ -221,7 +221,7 @@ void CodeViewer::DrawWindow(){
         ImGui::Text("[next]");
         if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
             if(DebugBreakPoints.find(cur_break_real_pc) != DebugBreakPoints.end()){
-                if(DebugBreakPoints[cur_break_real_pc] == 2){
+                if(DebugBreakPoints[cur_break_real_pc] == 3){
                     DebugBreakPoints.erase(cur_break_real_pc);
                 }else{
                     DebugBreakPoints[cur_break_real_pc]=1;
