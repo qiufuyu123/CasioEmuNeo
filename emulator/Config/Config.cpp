@@ -85,7 +85,7 @@ std::string EmuConfig::GetModulePath(){
             return root["settings"]["model"];
         }
     }
-    return "unifont.otf";
+    return "991cnx";
 }
 
 float EmuConfig::GetScale(){
