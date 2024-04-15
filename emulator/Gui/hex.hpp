@@ -353,17 +353,16 @@ struct MemoryEditor
                             data_write = data_next = true;
                         if (data_editing_addr_next != (size_t)-1)
                             data_write = data_next = false;
-                        if (data_write)
-                        {
-                            if (WriteFn) {
-                                uint8_t input = strtoul(DataInputBuf, nullptr, 16);
-                                WriteFn(mem_data, addr, (ImU8) input);
-                            } else {
-                                for (size_t i = 0; ; ++i) {
-                                    auto buf = DataInputBuf;
-                                    if (buf[i * 2] == '\0' || buf[i * 2 + 1] == '\0') break;
-                                    char byte_buf[] = {buf[i * 2], buf[i * 2 + 1]};
-                                    uint8_t input_value = strtoul(byte_buf, nullptr, 16);
+
+                        if (data_write) {
+                            for (size_t i = 0; ; ++i) {
+                                auto buf = DataInputBuf;
+                                if (buf[i * 2] == '\0' || buf[i * 2 + 1] == '\0') break;
+                                char byte_buf[] = {buf[i * 2], buf[i * 2 + 1]};
+                                uint8_t input_value = strtoul(byte_buf, nullptr, 16);
+                                if (WriteFn) {
+                                    WriteFn(mem_data, addr + i, input_value);
+                                } else {
                                     mem_data[addr + i] = input_value;
                                 }
                             }
