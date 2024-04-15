@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <unistd.h>
 
 using namespace casioemu;
 #define DEBUG
@@ -85,14 +86,32 @@ int main(int argc, char *argv[])
 		
 	}
 
-    const char *colored_spans_file = "./colored-spans";
-    if (std::filesystem::exists(colored_spans_file)) {
-        auto spans = casioemu::parseColoredSpansConfig(colored_spans_file);
-        auto leak = new std::optional(spans);
-        DebugUi::MARKED_SPANS = leak;
-    } else {
-        DebugUi::MARKED_SPANS = new std::optional<std::vector<MemoryEditor::MarkedSpan>>();
-    }
+    // start colored spans file watcher thread
+    std::thread t1([] {
+        const char *colored_spans_file = "./colored-spans";
+
+        auto last_mtime = 0L;
+        while (true) {
+            if (std::filesystem::exists(colored_spans_file)) {
+                auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+                        std::filesystem::last_write_time(colored_spans_file).time_since_epoch()
+                ).count();
+
+                if (timestamp != last_mtime) {
+                    // update data
+                    auto spans = casioemu::parseColoredSpansConfig(colored_spans_file);
+                    auto leak = new std::optional(spans);
+                    DebugUi::MARKED_SPANS = leak;
+
+                    last_mtime = timestamp;
+                }
+            } else {
+                DebugUi::MARKED_SPANS = new std::optional<std::vector<MemoryEditor::MarkedSpan>>();
+            }
+            sleep(1 /* 1s */);
+        }
+    });
+    t1.detach();
 
 	// while(1)
 	// 	;
