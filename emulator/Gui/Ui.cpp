@@ -28,7 +28,7 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.FontGlobalScale = 1.0;
     
-    EmuGloConfig.GetAtlas().AddRanges(io.Fonts->GetGlyphRangesDefault());
+    EmuGloConfig.GetAtlas().AddRanges(io.Fonts->GetGlyphRangesChineseFull());
     EmuGloConfig.GetAtlas().BuildRanges(&ranges);
     io.Fonts->AddFontFromFileTTF(EmuGloConfig.GetFontPath().data(), 18.0f, nullptr, ranges.Data);
     io.Fonts->Build();
