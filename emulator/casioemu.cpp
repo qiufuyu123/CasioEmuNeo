@@ -27,6 +27,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <csignal>
+
+static bool abort_flag = false;
 
 using namespace casioemu;
 // #define DEBUG
@@ -83,7 +86,13 @@ int main(int argc, char *argv[])
 	{
 		
 	}
-	
+
+    for (auto s: {SIGTERM, SIGINT}) {
+        signal(s, [](int) {
+            abort_flag = true;
+        });
+    }
+
 	// while(1)
 	// 	;
 	{
@@ -156,6 +165,15 @@ int main(int argc, char *argv[])
 			ui.PaintUi();
 			if (!SDL_PollEvent(&event))
 				continue;
+
+            if (abort_flag) {
+                abort_flag = false;
+                SDL_Event ev_exit;
+                SDL_zero(ev_exit);
+                ev_exit.type = SDL_WINDOWEVENT;
+                ev_exit.window.event = SDL_WINDOWEVENT_CLOSE;
+                SDL_PushEvent(&ev_exit);
+            }
 
 			switch (event.type)
 			{
