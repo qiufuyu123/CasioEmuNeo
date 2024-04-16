@@ -41,17 +41,45 @@ void WatchWindow::Show(){
                     ImGui::Text("EA");
                 }
                 ImGui::TableSetColumnIndex(1);
+                char input_text_label[32];
+                // they should be all unique
+                sprintf(input_text_label, "##reg-input%d", row);
                 if(row>=0 && row<16){
-                    ImGui::Text("0x%02x",chipset.cpu.reg_r[row]&0x0ff);
+                    ImGui::Text("0x"), ImGui::SameLine();
+                    char buf[3];
+                    sprintf(buf, "%02X", chipset.cpu.reg_r[row] & 0xff);
+                    if (ImGui::InputText(input_text_label, buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                        chipset.cpu.reg_r[row] = (uint8_t) strtoul(buf, nullptr, 16);
+                    }
                 }else if(row>=16 && row<24){
-                    int x = (row -16)*2;
-                    ImGui::Text("0x%04x",chipset.cpu.reg_r[x+1]<<8|chipset.cpu.reg_r[x]);
+                    int x = (row - 16) * 2;
+                    ImGui::Text("0x"), ImGui::SameLine();
+                    char buf[5];
+                    sprintf(buf, "%04X", chipset.cpu.reg_r[x + 1] << 8 | chipset.cpu.reg_r[x]);
+                    if (ImGui::InputText(input_text_label, buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                        // TODO: ??
+                    }
                 }else if(row == 24){
-                    ImGui::Text("0x%04x",chipset.cpu.reg_sp&0xffff);
+                    ImGui::Text("0x"), ImGui::SameLine();
+                    char buf[5];
+                    sprintf(buf, "%04X", chipset.cpu.reg_sp.raw);
+                    if (ImGui::InputText(input_text_label, buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                        chipset.cpu.reg_sp = (uint16_t) strtoul(buf, nullptr, 16);
+                    }
                 }else if(row == 25){
-                    ImGui::Text("0x%04x",chipset.cpu.reg_lr&0xffff);
+                    ImGui::Text("0x"), ImGui::SameLine();
+                    char buf[5];
+                    sprintf(buf, "%04X", chipset.cpu.reg_lr.raw);
+                    if (ImGui::InputText(input_text_label, buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                        chipset.cpu.reg_lr = (uint16_t) strtoul(buf, nullptr, 16);
+                    }
                 }else if(row==26){
-                    ImGui::Text("0x%04x",chipset.cpu.reg_ea&0xffff);
+                    ImGui::Text("0x"), ImGui::SameLine();
+                    char buf[5];
+                    sprintf(buf, "%04X", chipset.cpu.reg_ea.raw);
+                    if (ImGui::InputText(input_text_label, buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                        chipset.cpu.reg_ea = (uint16_t) strtoul(buf, nullptr, 16);
+                    }
                 }
             }
         }
