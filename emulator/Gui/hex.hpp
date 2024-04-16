@@ -619,9 +619,9 @@ struct MemoryEditor
         std::string joined;
         if (!descriptions_to_show.empty()) joined = descriptions_to_show[0];
         if (descriptions_to_show.size() > 1) {
-            for (auto &d: descriptions_to_show) {
+            for (size_t i = 1; i < descriptions_to_show.size(); ++i) {
                 joined += ", ";
-                joined += d;
+                joined += descriptions_to_show[i];
             }
         }
         if (joined.empty()) {
