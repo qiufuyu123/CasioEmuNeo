@@ -24,7 +24,7 @@ namespace casioemu {
 
     bool starts_with(const std::string &str, const std::string &prefix);
 
-    std::vector<MemoryEditor::MarkedSpan> parseColoredSpansConfig(const char *path);
+    std::vector<MemoryEditor::MarkedSpan> parseColoredSpansConfig(const std::string &path);
 }
 
 #endif //CASIOEMUX_UTILS_H
