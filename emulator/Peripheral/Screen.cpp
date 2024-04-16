@@ -321,7 +321,8 @@ namespace casioemu
 	template<HardwareId hardware_id> void Screen<hardware_id>::Uninitialise()
 	{
 		delete[] screen_buffer;
-		delete[] screen_buffer1;
+		if(emulator.hardware_id == HW_CLASSWIZ_II)
+			delete[] screen_buffer1;
 	}
 
 	template<HardwareId hardware_id> void Screen<hardware_id>::Frame()

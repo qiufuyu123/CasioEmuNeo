@@ -26,6 +26,8 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
     io.WantCaptureKeyboard=true;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigDockingWithShift = true;
     io.FontGlobalScale = 1.0;
     
     EmuGloConfig.GetAtlas().AddRanges(io.Fonts->GetGlyphRangesDefault());
