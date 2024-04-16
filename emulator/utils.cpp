@@ -31,7 +31,7 @@ std::vector<MemoryEditor::MarkedSpan> casioemu::parseColoredSpansConfig(const ch
         while (std::getline(ss, part, ',')) {
             parts.push_back(part);
         }
-        if (parts.size() != 3) continue;
+        if (parts.size() < 3) continue;
 
         auto range_start = strtoul(parts[0].c_str(), nullptr, 16);
         size_t range_end;
@@ -46,13 +46,17 @@ std::vector<MemoryEditor::MarkedSpan> casioemu::parseColoredSpansConfig(const ch
             sscanf(parts[2].c_str(), "%02x%02x%02x", &r, &g, &b); // NOLINT(*-err34-c)
         } else if (parts[2].length() == 8) {
             sscanf(parts[2].c_str(), "%02x%02x%02x%02x", &a, &r, &g, &b); // NOLINT(*-err34-c)
-
         }
-        result.push_back({
-                                 .start = range_start,
-                                 .length = range_end - range_start + 1,
-                                 .color = ImColor(r, g, b, a == 0 ? 50 : a),
-                         });
+
+        MemoryEditor::MarkedSpan span = {
+                .start = range_start,
+                .length = range_end - range_start + 1,
+                .color = ImColor(r, g, b, a == 0 ? 50 : a),
+        };
+        if (parts.size() == 4) {
+            span.desc = parts[3];
+        }
+        result.push_back(span);
     }
     file.close();
     return result;

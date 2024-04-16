@@ -82,6 +82,7 @@ struct MemoryEditor
         size_t start{};
         size_t length{};
         ImColor color{};
+        std::optional<std::string> desc{};
     };
     using OptionalMarkedSpans = std::optional<std::vector<MarkedSpan>>;
 
@@ -114,6 +115,7 @@ struct MemoryEditor
     size_t          HighlightMin, HighlightMax;
     int             PreviewEndianess;
     ImGuiDataType   PreviewDataType;
+    std::optional<std::string> SpanDescription;
 
     MemoryEditor()
     {
@@ -228,6 +230,8 @@ struct MemoryEditor
         CalcSizes(s, mem_size, base_display_addr);
         ImGuiStyle& style = ImGui::GetStyle();
 
+        UpdateSpanDescriptions(marked_spans, base_display_addr);
+
         // We begin into our scrolling region with the 'ImGuiWindowFlags_NoMove' in order to prevent click from moving the window.
         // This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
         const float height_separator = style.ItemSpacing.y;
@@ -236,6 +240,8 @@ struct MemoryEditor
             footer_height += height_separator + ImGui::GetFrameHeightWithSpacing() * 1;
         if (OptShowDataPreview)
             footer_height += height_separator + ImGui::GetFrameHeightWithSpacing() * 1 + ImGui::GetTextLineHeightWithSpacing() * 3;
+        if (SpanDescription.has_value())
+            footer_height += height_separator + ImGui::GetFrameHeightWithSpacing() * 1 + ImGui::GetTextLineHeightWithSpacing() * 1;
         ImGui::BeginChild("##scrolling", ImVec2(0, -footer_height), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav);
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -498,6 +504,16 @@ struct MemoryEditor
             ImGui::Separator();
             DrawPreviewLine(s, mem_data, mem_size, base_display_addr);
         }
+
+        if (SpanDescription.has_value()) {
+            ImGui::Separator();
+            DrawSpanDescriptionsLine(SpanDescription.value());
+        }
+    }
+
+    static void DrawSpanDescriptionsLine(const std::string& desc_string) {
+        ImGui::Text("Spans");
+        ImGui::Text("%s", desc_string.c_str());
     }
 
     void DrawOptionsLine(const Sizes& s, void* mem_data, size_t mem_size, size_t base_display_addr)
@@ -583,6 +599,36 @@ struct MemoryEditor
             DrawPreviewData(DataPreviewAddr, mem_data, mem_size, PreviewDataType, DataFormat_Bin, buf, (size_t)IM_ARRAYSIZE(buf));
         buf[IM_ARRAYSIZE(buf) - 1] = 0;
         ImGui::Text("Bin"); ImGui::SameLine(x); ImGui::TextUnformatted(has_value ? buf : "N/A");
+    }
+
+    void UpdateSpanDescriptions(const OptionalMarkedSpans &marked_spans, size_t base_display_addr) {
+        if (!marked_spans.has_value() || DataEditingAddr == (size_t) -1) {
+            SpanDescription = {};
+            return;
+        }
+
+        std::vector<std::string> descriptions_to_show;
+        for (auto &span: marked_spans.value()) {
+            auto abs_editing_pos = DataEditingAddr + base_display_addr;
+            if (abs_editing_pos >= span.start && abs_editing_pos <= span.start + span.length - 1 &&
+                span.desc.has_value()) {
+                descriptions_to_show.push_back(span.desc.value());
+            }
+        }
+
+        std::string joined;
+        if (!descriptions_to_show.empty()) joined = descriptions_to_show[0];
+        if (descriptions_to_show.size() > 1) {
+            for (auto &d: descriptions_to_show) {
+                joined += ", ";
+                joined += d;
+            }
+        }
+        if (joined.empty()) {
+            SpanDescription = {};
+        } else {
+            SpanDescription = joined;
+        }
     }
 
     // Utilities for Data Preview
