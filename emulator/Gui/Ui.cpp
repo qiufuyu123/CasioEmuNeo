@@ -88,6 +88,12 @@ void DebugUi::PaintUi(){
 CodeViewer* DebugUi::code_viewer = nullptr;
 MemoryEditor::OptionalMarkedSpans* DebugUi::MARKED_SPANS = nullptr;
 
+void DebugUi::UpdateMarkedSpans(const MemoryEditor::OptionalMarkedSpans &spans) {
+    delete MARKED_SPANS;
+    auto leaked = new std::optional(spans);
+    MARKED_SPANS = leaked;
+}
+
 void gui_loop(){
     
 }
