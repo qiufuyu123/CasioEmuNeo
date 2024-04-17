@@ -25,6 +25,15 @@ namespace casioemu {
     bool starts_with(const std::string &str, const std::string &prefix);
 
     std::vector<MemoryEditor::MarkedSpan> parseColoredSpansConfig(const std::string &path);
+
+    class FileSystem {
+    public:
+        static bool exists(const std::string &path);
+
+        static timespec mtime(const std::string &path);
+
+        static uint64_t mtime_ms(const std::string &path);
+    };
 }
 
 #endif //CASIOEMUX_UTILS_H

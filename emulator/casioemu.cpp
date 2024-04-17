@@ -34,6 +34,8 @@
 
 static bool abort_flag = false;
 
+void StartMemSpansConfigWatcherThread(const std::string &path);
+
 using namespace casioemu;
 // #define DEBUG
 int main(int argc, char *argv[])
@@ -104,7 +106,7 @@ int main(int argc, char *argv[])
 
         // start colored spans file watcher thread
     	auto colored_spans_file = emulator.GetModelFilePath("mem-spans.txt");
-        DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(colored_spans_file));
+        StartMemSpansConfigWatcherThread(colored_spans_file);
 
 		// Used to signal to the console input thread when to stop.
 		static std::atomic<bool> running(true);
@@ -253,4 +255,32 @@ int main(int argc, char *argv[])
 	}
 
 	return 0;
+}
+
+#define MEM_SPANS_CONFIG_POLLING_INTERVAL 1 /* seconds */
+void StartMemSpansConfigWatcherThread(const std::string &path) {
+    std::thread([&]() {
+        uint64_t last_mtime{};
+        // Currently we just use this naive file modification watcher (periodically polling method).
+        // There are platform-dependent methods (like inotify on *nix)
+        // but they're more efficient for folders/bunch of files; if just for a single file,
+        // the performance impact can be considered *negligible*.
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
+        // loop during the whole program lifetime
+        while (true) {
+            if (FileSystem::exists(path)) {
+                auto mtime = FileSystem::mtime_ms(path);
+                if (mtime != last_mtime) {
+                    DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(path));
+                    last_mtime = mtime;
+                }
+            } else {
+                DebugUi::UpdateMarkedSpans({});
+                last_mtime = 0L;
+            }
+            sleep(MEM_SPANS_CONFIG_POLLING_INTERVAL);
+        }
+#pragma clang diagnostic pop
+    }).detach();
 }
