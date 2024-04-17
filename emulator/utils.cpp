@@ -12,7 +12,7 @@ const char *casioemu::Exception::what() const noexcept {
 
 casioemu::Exception::Exception(std::string _msg) : msg(std::move(_msg)) {}
 
-std::vector<MemoryEditor::MarkedSpan> casioemu::parseColoredSpansConfig(const std::string &path) {
+std::vector<MemoryEditor::MarkedSpan> casioemu::ParseColoredSpansConfig(const std::string &path) {
     auto result = std::vector<MemoryEditor::MarkedSpan>();
 
     std::ifstream file(path);

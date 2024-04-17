@@ -272,7 +272,7 @@ void StartMemSpansConfigWatcherThread(const std::string &path) {
             if (FileSystem::exists(path)) {
                 auto mtime = FileSystem::mtime_ms(path);
                 if (mtime != last_mtime) {
-                    DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(path));
+                    DebugUi::UpdateMarkedSpans(casioemu::ParseColoredSpansConfig(path));
                     last_mtime = mtime;
                 }
             } else {

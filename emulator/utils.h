@@ -24,7 +24,7 @@ namespace casioemu {
 
     bool starts_with(const std::string &str, const std::string &prefix);
 
-    std::vector<MemoryEditor::MarkedSpan> parseColoredSpansConfig(const std::string &path);
+    std::vector<MemoryEditor::MarkedSpan> ParseColoredSpansConfig(const std::string &path);
 
     class FileSystem {
     public:
