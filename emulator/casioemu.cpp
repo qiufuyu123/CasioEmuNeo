@@ -16,7 +16,6 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
-#include <filesystem>
 
 #include "Emulator.hpp"
 #include "Logger.hpp"
@@ -104,28 +103,8 @@ int main(int argc, char *argv[])
 		// Note: argv_map must be destructed after emulator.
 
         // start colored spans file watcher thread
-        std::thread t1([&] {
-            auto colored_spans_file = emulator.GetModelFilePath("mem-spans.txt");
-
-            auto last_mtime = 0L;
-            while (true) {
-                if (std::filesystem::exists(colored_spans_file)) {
-                    auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
-                            std::filesystem::last_write_time(colored_spans_file).time_since_epoch()
-                    ).count();
-
-                    if (timestamp != last_mtime) {
-                        // update data
-                        DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(colored_spans_file));
-                        last_mtime = timestamp;
-                    }
-                } else {
-                    DebugUi::UpdateMarkedSpans({});
-                }
-                sleep(1 /* 1s */);
-            }
-        });
-        t1.detach();
+    	auto colored_spans_file = emulator.GetModelFilePath("mem-spans.txt");
+        DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(colored_spans_file));
 
 		// Used to signal to the console input thread when to stop.
 		static std::atomic<bool> running(true);
