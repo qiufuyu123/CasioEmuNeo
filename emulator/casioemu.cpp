@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include "Config/Config.hpp"
 #include "Gui/imgui_impl_sdl2.h"
 #include "Gui/Ui.hpp"
 #include "utils.h"
@@ -28,10 +29,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
 #include <unistd.h>
+#include <csignal>
+
+static bool abort_flag = false;
 
 using namespace casioemu;
-#define DEBUG
+// #define DEBUG
 int main(int argc, char *argv[])
 {
 	std::map<std::string, std::string> argv_map;
@@ -60,9 +65,9 @@ int main(int argc, char *argv[])
 	{
 
 #ifdef DEBUG
-		argv_map["model"]="E:/projects/CasioEmuX/models/fx999cncw";
+		argv_map["model"]="E:/projects/CasioEmuX/models/fx991cncw";
 #else
-		argv_map["model"]="./fx991cnx";
+		argv_map["model"]=EmuGloConfig.GetModulePath();
 #endif
 		// printf("No model path supplied\n");
 		// exit(2);
@@ -86,6 +91,11 @@ int main(int argc, char *argv[])
 		
 	}
 
+    for (auto s: {SIGTERM, SIGINT}) {
+        signal(s, [](int) {
+            abort_flag = true;
+        });
+    }
 	// while(1)
 	// 	;
 	{
@@ -183,6 +193,15 @@ int main(int argc, char *argv[])
 			if (!SDL_PollEvent(&event))
 				continue;
 
+            if (abort_flag) {
+                abort_flag = false;
+                SDL_Event ev_exit;
+                SDL_zero(ev_exit);
+                ev_exit.type = SDL_WINDOWEVENT;
+                ev_exit.window.event = SDL_WINDOWEVENT_CLOSE;
+                SDL_PushEvent(&ev_exit);
+            }
+
 			switch (event.type)
 			{
 			case SDL_USEREVENT:
@@ -206,12 +225,12 @@ int main(int argc, char *argv[])
 					emulator.Shutdown();
 					break;
 				case SDL_WINDOWEVENT_RESIZED:
-					// if (!argv_map.count("resizable"))
-					// {
-					// 	// Normally, in this case, the window manager should not
-					// 	// send resized event, but some still does (such as xmonad)
-					// 	break;
-					// }
+					 if (!emulator.IsResizable())
+					 {
+					 	// Normally, in this case, the window manager should not
+					 	// send resized event, but some still does (such as xmonad)
+					 	break;
+					 }
 					ImGui_ImplSDL2_ProcessEvent(&event);
 					if(event.window.windowID == SDL_GetWindowID(emulator.window)){
 					emulator.WindowResize(event.window.data1, event.window.data2);

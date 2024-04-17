@@ -20,7 +20,7 @@ void WatchWindow::Show(){
     ImGui::InputTextMultiline("##as",(char*)s.c_str(),s.size(),ImVec2(ImGui::GetWindowWidth(),0),ImGuiInputTextFlags_ReadOnly);
     ImGui::EndChild();
     ImGui::BeginChild("##reg_trace",ImVec2(0,ImGui::GetWindowHeight()/4));
-    ImGui::BeginTable("table", 2);
+    if(ImGui::BeginTable("table", 2)){
         ImGuiListClipper clipper;
         clipper.Begin(16+10+2);
         while (clipper.Step())
@@ -56,7 +56,8 @@ void WatchWindow::Show(){
             }
         }
         ImGui::EndTable();
-
+    }
+  
     ImGui::EndChild();
     static int range=64;
     ImGui::BeginChild("##stack_view");

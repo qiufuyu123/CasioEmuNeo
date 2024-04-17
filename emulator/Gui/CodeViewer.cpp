@@ -104,7 +104,7 @@ bool CodeViewer::TryTrigBP(uint8_t seg,uint16_t offset,bool bp_mode){
     if( !bp_mode &&( debug_flags & DEBUG_STEP || debug_flags & DEBUG_RET_TRACE)){
         int idx=0;
         LookUp(seg, offset,&idx);
-        DebugBreakPoints[realpc] = 2;
+        DebugBreakPoints[realpc] = 3;
         cur_col=idx;
         need_roll=true;
         cur_break_real_pc = realpc;
@@ -213,7 +213,7 @@ void CodeViewer::DrawWindow(){
     if(cur_break_real_pc != -1){
         ImGui::SameLine();
         ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImVec2 sz = ImGui::CalcTextSize("[next]  [step]");
+        ImVec2 sz = ImGui::CalcTextSize("[next] ");
         //debug tool
         ImGui::GetWindowDrawList()
         ->AddRectFilled(pos, ImVec2(pos.x+sz.x,pos.y+sz.y),IM_COL32(255, 255, 0, 50));
@@ -221,7 +221,11 @@ void CodeViewer::DrawWindow(){
         ImGui::Text("[next]");
         if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
             if(DebugBreakPoints.find(cur_break_real_pc) != DebugBreakPoints.end()){
-                DebugBreakPoints[cur_break_real_pc]=1;
+                if(DebugBreakPoints[cur_break_real_pc] == 3){
+                    DebugBreakPoints.erase(cur_break_real_pc);
+                }else{
+                    DebugBreakPoints[cur_break_real_pc]=1;
+                }
             }
             cur_break_real_pc = -1;
             emu->SetPaused(false);
@@ -229,17 +233,6 @@ void CodeViewer::DrawWindow(){
         ImGui::SameLine();
 
         ImGui::Text("  ");
-        ImGui::SameLine();
-
-        ImGui::Text("[step]");
-        if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
-            if(DebugBreakPoints.find(cur_break_real_pc) != DebugBreakPoints.end()){
-                DebugBreakPoints[cur_break_real_pc]=1;
-            }
-            cur_break_real_pc = -1;
-            emu->SetPaused(false);
-            step_debug = true;
-        }
     }
     //ImGui::BeginChild("##scrolling");
     DrawMonitor();
