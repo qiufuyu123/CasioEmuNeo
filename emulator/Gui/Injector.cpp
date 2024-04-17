@@ -77,38 +77,45 @@ void Injector::Show(){
     }
     if(ImGui::Button(EmuGloConfig[UI_ROP_LOADFROMSTR])){
         
-        int j = 0;
-        int i = 0;
         info_msg = EmuGloConfig[UI_INFO3];
-        while (strbuf[i] != '\0') {
-            if(strbuf[i] == ' ' || strbuf[i] == '\n'){
-                j++;
-                while(strbuf[i]==' ' || strbuf[i] == '\n'){
-                    i++;
+
+
+        auto valid_hex = [](char c) {
+            if (c >= '0' && c <= '9') return true;
+            if ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) return true;
+            return false;
+        };
+        size_t i = 0, j = 0;
+        char hex_buf[2];
+        while (strbuf[i] != '\0' && strbuf[i + 1] != '\0') {
+            if (strbuf[i] == ';' || strbuf[i + 1] == ';') {
+                // begin comment; skip the rest of the line
+                for (;; ++i) {
+                    if (strbuf[i] == '\0') goto exit;
+                    if (strbuf[i] == '\n') {
+                        ++i;
+                        break;
+                    }
                 }
-            }else{
-                char c1 = strbuf[i];
-                char c2 = strbuf[i+1];
-                if(c1>='0' && c1<='9'){
-                    c1-='0';
-                }else if(c1>='a' && c1<='f'){
-                    c1=c1-'a'+10;
+            } else {
+                if (!(valid_hex(strbuf[i]) && valid_hex(strbuf[i + 1]))) {
+                    ++i;
+                    continue;
                 }
-                if(c2>='0' && c2<='9'){
-                    c2-='0';
-                }else if(c2>='a' && c2<='f'){
-                    c2= c2 - 'a'+10;
-                }
-                *(base_addr+0xd180-0xd000+j) = (c1<<4)|(c2&0x0f);
-                *(data_buf+j)=*(base_addr+0xd180-0xd000+j);
-                i+=2;
-            }            
+                hex_buf[0] = strbuf[i], hex_buf[1] = strbuf[i + 1];
+                uint8_t byte = strtoul(hex_buf, nullptr, 16);
+                *(base_addr - MEM_EDIT_BASE_ADDR + LABEL_INPUT_BUF + j) = (char) byte;
+                *(data_buf + j) = (char) byte;
+                i += 2;
+                ++j;
+            }
         }
+        exit:
         ImGui::OpenPopup("info");
 
     }
     ImGui::SameLine();
-    ImGui::InputTextMultiline("Input hex string. use ' ' to split", strbuf, 1023);
+    ImGui::InputTextMultiline("Input hex string.", strbuf, IM_ARRAYSIZE(strbuf) - 1);
     
     if(ImGui::BeginPopupModal("info",0,ImGuiWindowFlags_AlwaysAutoResize)){
         ImGui::Text(info_msg);

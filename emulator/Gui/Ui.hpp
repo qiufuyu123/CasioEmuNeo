@@ -7,9 +7,6 @@
 #include "WatchWindow.hpp"
 #include "Injector.hpp"
 
-#define MEM_EDIT_BASE_ADDR 0xD000
-#define MEM_EDIT_MEM_SIZE 0x2100
-
 // #include "../Emulator.hpp"
 // #include "CodeViewer.hpp"
 // int test_gui();
