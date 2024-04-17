@@ -106,14 +106,11 @@ int main(int argc, char *argv[])
 
                     if (timestamp != last_mtime) {
                         // update data
-                        auto spans = casioemu::parseColoredSpansConfig(colored_spans_file);
-                        auto leak = new std::optional(spans);
-                        DebugUi::MARKED_SPANS = leak;
-
+                        DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(colored_spans_file));
                         last_mtime = timestamp;
                     }
                 } else {
-                    DebugUi::MARKED_SPANS = new std::optional<std::vector<MemoryEditor::MarkedSpan>>();
+                    DebugUi::UpdateMarkedSpans({});
                 }
                 sleep(1 /* 1s */);
             }

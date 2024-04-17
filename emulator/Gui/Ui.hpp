@@ -34,6 +34,12 @@ public:
     static CodeViewer* code_viewer;
     static MemoryEditor::OptionalMarkedSpans *MARKED_SPANS;
 
+    static void UpdateMarkedSpans(const MemoryEditor::OptionalMarkedSpans &spans) {
+        delete MARKED_SPANS;
+        auto leaked = new std::optional(spans);
+        MARKED_SPANS = leaked;
+    }
+
     DebugUi(casioemu::Emulator* emu);
 
     void PaintUi();
