@@ -8,8 +8,9 @@
 #include <string>
 
 #include "../Config/Config.hpp"
-Injector::Injector(casioemu::Emulator*e){
-    emu = e;
+Injector::Injector()
+:UiBase(this)
+{
     data_buf = new char[1024];
     memset(data_buf, 0,1024);
 }

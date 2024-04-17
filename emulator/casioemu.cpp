@@ -2,6 +2,7 @@
 #include "Config/Config.hpp"
 #include "Gui/imgui_impl_sdl2.h"
 #include "Gui/Ui.hpp"
+#include "SDL_timer.h"
 #include "utils.h"
 
 #include <SDL.h>
@@ -158,22 +159,20 @@ int main(int argc, char *argv[])
 		// 		}
 		// 	}
 		// });
-		DebugUi ui(&emulator);
-		// std::thread t1([&](){
-		// 	while(1){
-		// 		gui_loop();
-		// 	}
-		// });
-		// t1.detach();
+		DebugUi ui;
+		float m_DeltaTime;
+		Uint64 m_StartTime;
+		Uint64 m_PreFrameTime;
+		m_StartTime = SDL_GetPerformanceCounter();
+		m_PreFrameTime = m_StartTime;
 		while (emulator.Running())
 		{
 			
 			//std::cout<<SDL_GetMouseFocus()<<","<<emulator.window<<std::endl;
 			SDL_Event event;
-			ui.PaintUi();
 			if (!SDL_PollEvent(&event))
 				continue;
-
+			
             if (abort_flag) {
                 abort_flag = false;
                 SDL_Event ev_exit;
@@ -189,7 +188,8 @@ int main(int argc, char *argv[])
 				switch (event.user.code)
 				{
 				case CE_FRAME_REQUEST:
-					emulator.Frame();
+					// emulator.Frame();
+					
 					break;
 				case CE_EMU_STOPPED:
 					if (emulator.Running())
@@ -236,11 +236,28 @@ int main(int argc, char *argv[])
 					break;
 				}
 				emulator.UIEvent(event);
+				
 				break;
 			}
+			ui.PaintUi();
+			emulator.Frame();
+			Uint64 currTime = SDL_GetPerformanceCounter();
+			m_DeltaTime = (currTime - m_PreFrameTime) / (float)SDL_GetPerformanceFrequency();
+			m_PreFrameTime = currTime;
+			float totalTime = (currTime - m_StartTime) / (float)SDL_GetPerformanceFrequency();
+			float FPS = 1.0f / m_DeltaTime;
+			//SDL_LogInfo(0, "totalTime: %f\tdt: %f\tFPS: %f\n", totalTime, m_DeltaTime, FPS);
+
+			// 限制帧率
+			int MaxFPS = 120;
+			if (m_DeltaTime < 1.0f / MaxFPS * 1000.0f)
+				SDL_Delay(Uint32(floor(1.0 / MaxFPS * 1000.0 - m_DeltaTime)));
+		
 		}
 		
 		running = false;
+
+		
 		//console_input_thread.join();
 	}
 

@@ -3,19 +3,21 @@
 #include "../Chipset/CPU.hpp"
 #include "imgui.h"
 #include "../Peripheral/BatteryBackedRAM.hpp"
+#include <cassert>
 #include <cstdint>
 
 #include "../Config/Config.hpp"
 
-WatchWindow::WatchWindow(casioemu::Emulator *e){
-    emu = e;
+WatchWindow::WatchWindow()
+:UiBase(this)
+{
     
 }
 
 void WatchWindow::Show(){
     ImGui::Begin(EmuGloConfig[UI_REPORT_WINDOW]);
     ImGui::BeginChild("##stack_trace",ImVec2(0,ImGui::GetWindowHeight()/4));
-    casioemu::Chipset& chipset = emu->chipset;
+    casioemu::Chipset& chipset = casioemu::Emulator::instance->chipset;
     std::string s=chipset.cpu.GetBacktrace();
     ImGui::InputTextMultiline("##as",(char*)s.c_str(),s.size(),ImVec2(ImGui::GetWindowWidth(),0),ImGuiInputTextFlags_ReadOnly);
     ImGui::EndChild();

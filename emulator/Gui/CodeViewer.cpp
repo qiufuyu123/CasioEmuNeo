@@ -24,9 +24,10 @@ int get_real_pc(uint8_t seg,uint16_t off){
     return (seg<<16)|off;
 }
 
-CodeViewer::CodeViewer(std::string path,casioemu::Emulator *e){
+CodeViewer::CodeViewer(std::string path)
+:UiBase(this){
     src_path = path;
-    emu = e;
+    emu = casioemu::Emulator::instance;
     std::thread t1([this](){
         std::ifstream f(src_path,std::ios::in);
     if(!f.is_open()){

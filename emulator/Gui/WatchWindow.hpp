@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../Emulator.hpp"
+#include "UiBase.hpp"
 #include "hex.hpp"
 
-class WatchWindow{
+class WatchWindow:public UiBase{
 private:
     MemoryEditor mem_editor;
-    casioemu::Emulator *emu;
 public:
-    WatchWindow(casioemu::Emulator *e);
+    WatchWindow();
 
     void Show();
 };

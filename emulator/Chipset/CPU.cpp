@@ -413,11 +413,11 @@ namespace casioemu
 			 */
 			impl_flags_out = PSW_Z;
 			(this->*(handler->handler_function))();
-			if(DebugUi::code_viewer){
-				if((DebugUi::code_viewer->debug_flags & DEBUG_BREAKPOINT) && DebugUi::code_viewer->TryTrigBP(reg_csr, reg_pc)){
+			if(CodeViewer::instance){
+				if((CodeViewer::GetInst<CodeViewer>()->debug_flags & DEBUG_BREAKPOINT) && CodeViewer::GetInst<CodeViewer>()->TryTrigBP(reg_csr, reg_pc)){
 					emulator.SetPaused(true);
 				}
-				else if((DebugUi::code_viewer->debug_flags)&DEBUG_STEP && DebugUi::code_viewer->TryTrigBP(reg_csr, reg_pc,false)){
+				else if((CodeViewer::GetInst<CodeViewer>()->debug_flags)&DEBUG_STEP && CodeViewer::GetInst<CodeViewer>()->TryTrigBP(reg_csr, reg_pc,false)){
 					emulator.SetPaused(true);
 				}
 			}

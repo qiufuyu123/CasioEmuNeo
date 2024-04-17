@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_map>
 
-
+#include "UiBase.hpp"
 #include "../Emulator.hpp"
 typedef struct{
     uint8_t segment;
@@ -22,7 +22,7 @@ enum EmuDebugFlag{
 
 extern std::unordered_map<int, uint8_t> DebugBreakPoints;
 
-class CodeViewer
+class CodeViewer : public UiBase
 { 
     private:
         casioemu::Emulator *emu;
@@ -41,7 +41,7 @@ class CodeViewer
 
     public:
         uint8_t debug_flags = DEBUG_BREAKPOINT;
-        CodeViewer(std::string path,casioemu::Emulator* e);
+        CodeViewer(std::string path);
         ~CodeViewer();
         bool TryTrigBP(uint8_t seg,uint16_t offset,bool bp_mode=true);
         CodeElem LookUp(uint8_t seg,uint16_t offset,int *idx=0);

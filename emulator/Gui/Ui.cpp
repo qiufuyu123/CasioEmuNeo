@@ -6,13 +6,16 @@
 
 #include "Ui.hpp"
 #include "hex.hpp"
+#include "WatchWindow.hpp"
+#include "Injector.hpp"
 #include "../Peripheral/BatteryBackedRAM.hpp"
 
 #include "../Config/Config.hpp"
 ImVector<ImWchar> ranges;
-DebugUi::DebugUi(casioemu::Emulator *emu)
-    :watch_win(emu),inject_win(emu){
-    emulator = emu;
+	
+DebugUi::DebugUi()
+{
+
     window = SDL_CreateWindow(EmuGloConfig[UI_TITLE], SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
@@ -34,32 +37,20 @@ DebugUi::DebugUi(casioemu::Emulator *emu)
     EmuGloConfig.GetAtlas().BuildRanges(&ranges);
     io.Fonts->AddFontFromFileTTF(EmuGloConfig.GetFontPath().data(), 18.0f, nullptr, ranges.Data);
     io.Fonts->Build();
-        // Query default monitor resolution
     
-
-    //int win_w = display_bounds.w * 7 / 8, win_h = display_bounds.h * 7 / 8;
-    //io.FontGlobalScale=dpi_scaling;
-// ...
-    // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\Arial.ttf", dpi_scaling * 14.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-    //io.WantTextInput = true;
-    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
-    
-    // Setup Platform/Renderer backends
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-
-    // Setup Platform/Renderer backends
+    
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    char buf[100]{0};
-    // Main loop
+    ui_components.push_back(new CodeViewer(casioemu::Emulator::instance->GetModelFilePath("_disas.txt")));
+    ui_components.push_back(new WatchWindow());
+    ui_components.push_back(new Injector());
     rom_addr = casioemu::BatteryBackedRAM::rom_addr;
-    code_viewer=new CodeViewer(emulator->GetModelFilePath("_disas.txt"),emulator);
+    // code_viewer=new CodeViewer(emulator->GetModelFilePath("_disas.txt"),emulator);
 }
 
 void DebugUi::PaintUi(){
+    
     assert(MARKED_SPANS != nullptr /* initialized in casioemu.cpp */);
     auto &marked_spans = *MARKED_SPANS;
 
@@ -70,22 +61,26 @@ void DebugUi::PaintUi(){
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+    
+
+    static MemoryEditor mem_edit;
     mem_edit.ReadOnly = false;
     mem_edit.DrawWindow(EmuGloConfig[UI_MEMEDIT], rom_addr, MEM_EDIT_MEM_SIZE, MEM_EDIT_BASE_ADDR, marked_spans);
-    code_viewer->DrawWindow();
-    watch_win.Show();
-    inject_win.Show();
-    // Rendering
+    for(UiBase* a:ui_components){
+        a->Show();
+    }
 
+    
     ImGui::Render();
     SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
     SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
     SDL_RenderClear(renderer);
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
     SDL_RenderPresent(renderer);
+
+    
 }
  
-CodeViewer* DebugUi::code_viewer = nullptr;
 MemoryEditor::OptionalMarkedSpans* DebugUi::MARKED_SPANS = nullptr;
 
 void DebugUi::UpdateMarkedSpans(const MemoryEditor::OptionalMarkedSpans &spans) {

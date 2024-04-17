@@ -88,9 +88,9 @@ namespace casioemu
 			reg_pc = Pop16();
 			if (memory_model == MM_LARGE)
 				reg_csr = Pop16() & 0x000F;
-			if(DebugUi::code_viewer){
-				if(DebugUi::code_viewer->debug_flags & DEBUG_RET_TRACE){
-					if(DebugUi::code_viewer->TryTrigBP(reg_csr, reg_pc,false)){
+			if(CodeViewer::instance){
+				if(CodeViewer::GetInst<CodeViewer>()->debug_flags & DEBUG_RET_TRACE){
+					if(CodeViewer::GetInst<CodeViewer>()->TryTrigBP(reg_csr, reg_pc,false)){
 						emulator.SetPaused(true);
 					}
 				}

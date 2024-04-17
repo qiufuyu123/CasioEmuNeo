@@ -103,6 +103,8 @@ namespace casioemu
 		 */
 		Chipset &chipset;
 
+		static Emulator *instance;
+
 		bool Running();
 		void HandleMemoryError();
 		void Shutdown();
