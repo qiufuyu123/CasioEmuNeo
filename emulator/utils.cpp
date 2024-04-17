@@ -3,6 +3,8 @@
 //
 
 #include "utils.h"
+#include <unistd.h>
+#include <sys/stat.h>
 
 const char *casioemu::Exception::what() const noexcept {
     return msg.c_str();
@@ -10,7 +12,7 @@ const char *casioemu::Exception::what() const noexcept {
 
 casioemu::Exception::Exception(std::string _msg) : msg(std::move(_msg)) {}
 
-std::vector<MemoryEditor::MarkedSpan> casioemu::parseColoredSpansConfig(const std::string &path) {
+std::vector<MemoryEditor::MarkedSpan> casioemu::ParseColoredSpansConfig(const std::string &path) {
     auto result = std::vector<MemoryEditor::MarkedSpan>();
 
     std::ifstream file(path);
@@ -67,4 +69,22 @@ bool casioemu::starts_with(const std::string &str, const std::string &prefix) {
         return false;
     }
     return str.substr(0, prefix.length()) == prefix;
+}
+
+bool casioemu::FileSystem::exists(const std::string &path) {
+    return access(path.c_str(), F_OK) == 0;
+}
+
+timespec casioemu::FileSystem::mtime(const std::string &path) {
+    struct stat stat_r{};
+    if (stat(path.c_str(), &stat_r) != 0) {
+        perror("stat");
+        return {};
+    }
+    return stat_r.st_mtim;
+}
+
+uint64_t casioemu::FileSystem::mtime_ms(const std::string &path) {
+    const timespec &ts = FileSystem::mtime(path);
+    return (uint64_t) ts.tv_sec * 1000 + (uint64_t) ts.tv_nsec / 1000000;
 }
