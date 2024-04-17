@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 				switch (event.user.code)
 				{
 				case CE_FRAME_REQUEST:
-					// emulator.Frame();
+					emulator.Frame();
 					
 					break;
 				case CE_EMU_STOPPED:
@@ -240,7 +240,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 			ui.PaintUi();
-			emulator.Frame();
 			Uint64 currTime = SDL_GetPerformanceCounter();
 			m_DeltaTime = (currTime - m_PreFrameTime) / (float)SDL_GetPerformanceFrequency();
 			m_PreFrameTime = currTime;
