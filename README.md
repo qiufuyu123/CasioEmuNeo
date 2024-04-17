@@ -13,7 +13,7 @@
 0. 安装 xmake & Mingw
    1. `curl -fsSL https://xmake.io/shget.text | bash`   
 
-   2. 安装并配置 Mingw64
+   2. 安装并配置 Mingw64 *(windows下选则Posix版本!!!不是win32版本)
 1. 构建模拟器  
    ```
    cd emulator
