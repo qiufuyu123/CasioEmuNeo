@@ -607,28 +607,32 @@ struct MemoryEditor
             return;
         }
 
-        std::vector<std::string> descriptions_to_show;
+        std::optional<std::vector<std::string>> desc_to_show = {};
         for (auto &span: marked_spans.value()) {
             auto abs_editing_pos = DataEditingAddr + base_display_addr;
             if (abs_editing_pos >= span.start && abs_editing_pos <= span.start + span.length - 1 &&
                 span.desc.has_value()) {
-                descriptions_to_show.push_back(span.desc.value());
+                if (!desc_to_show.has_value()) {
+                    desc_to_show = std::vector<std::string>();
+                }
+                desc_to_show.value().push_back(span.desc.value());
             }
+        }
+        if (!desc_to_show.has_value()) {
+            SpanDescription = {};
+            return;
         }
 
-        std::string joined;
-        if (!descriptions_to_show.empty()) joined = descriptions_to_show[0];
-        if (descriptions_to_show.size() > 1) {
-            for (size_t i = 1; i < descriptions_to_show.size(); ++i) {
+        // desc_to_show.size() won't be empty
+        auto &d = desc_to_show.value();
+        std::string joined = d[0];
+        if (d.size() > 1) {
+            for (size_t i = 1; i < d.size(); ++i) {
                 joined += ", ";
-                joined += descriptions_to_show[i];
+                joined += d[i];
             }
         }
-        if (joined.empty()) {
-            SpanDescription = {};
-        } else {
-            SpanDescription = joined;
-        }
+        SpanDescription = joined;
     }
 
     // Utilities for Data Preview
