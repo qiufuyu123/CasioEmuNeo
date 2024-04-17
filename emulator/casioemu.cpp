@@ -2,6 +2,7 @@
 #include "Config/Config.hpp"
 #include "Gui/imgui_impl_sdl2.h"
 #include "Gui/Ui.hpp"
+#include "utils.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -15,6 +16,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <filesystem>
 
 #include "Emulator.hpp"
 #include "Logger.hpp"
@@ -27,6 +29,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+#include <unistd.h>
 #include <csignal>
 
 static bool abort_flag = false;
@@ -92,13 +96,36 @@ int main(int argc, char *argv[])
             abort_flag = true;
         });
     }
-
 	// while(1)
 	// 	;
 	{
 		Emulator emulator(argv_map);
 		
 		// Note: argv_map must be destructed after emulator.
+
+        // start colored spans file watcher thread
+        std::thread t1([&] {
+            auto colored_spans_file = emulator.GetModelFilePath("mem-spans.txt");
+
+            auto last_mtime = 0L;
+            while (true) {
+                if (std::filesystem::exists(colored_spans_file)) {
+                    auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::filesystem::last_write_time(colored_spans_file).time_since_epoch()
+                    ).count();
+
+                    if (timestamp != last_mtime) {
+                        // update data
+                        DebugUi::UpdateMarkedSpans(casioemu::parseColoredSpansConfig(colored_spans_file));
+                        last_mtime = timestamp;
+                    }
+                } else {
+                    DebugUi::UpdateMarkedSpans({});
+                }
+                sleep(1 /* 1s */);
+            }
+        });
+        t1.detach();
 
 		// Used to signal to the console input thread when to stop.
 		static std::atomic<bool> running(true);

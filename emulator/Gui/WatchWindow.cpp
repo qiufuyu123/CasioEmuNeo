@@ -57,7 +57,7 @@ void WatchWindow::Show(){
         }
         ImGui::EndTable();
     }
-    
+  
     ImGui::EndChild();
     static int range=64;
     ImGui::BeginChild("##stack_view");
