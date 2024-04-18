@@ -10,10 +10,11 @@
 - [rop注入/调试](./docs/intro_rop.md)
 
 ## 构建
-0. 安装 xmake & Mingw
+0. 安装 xmake & Mingw & 下载字体
    1. `curl -fsSL https://xmake.io/shget.text | bash`   
 
    2. 安装并配置 Mingw64 *(windows下选则Posix版本!!!不是win32版本)
+   3. [字体](http://unifoundry.com/pub/unifont/unifont-15.1.05/font-builds/unifont-15.1.05.otf) 下载放到工程根目录
 1. 构建模拟器  
    ```
    cd emulator
