@@ -173,14 +173,14 @@ int main(int argc, char *argv[])
 			
 		});
 		uit.detach();
+		
 		while (emulator.Running())
 		{
-			//ui.PaintUi();
 			//std::cout<<SDL_GetMouseFocus()<<","<<emulator.window<<std::endl;
 			SDL_Event event;
 			if (!SDL_PollEvent(&event))
 				continue;
-				
+			ui.PaintSDL();
             if (abort_flag) {
                 abort_flag = false;
                 SDL_Event ev_exit;
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 					 	// send resized event, but some still does (such as xmonad)
 					 	break;
 					 }
-					ImGui_ImplSDL2_ProcessEvent(&event);
+					//ImGui_ImplSDL2_ProcessEvent(&event);
 					if(event.window.windowID == SDL_GetWindowID(emulator.window)){
 					emulator.WindowResize(event.window.data1, event.window.data2);
 					}
@@ -257,8 +257,8 @@ int main(int argc, char *argv[])
 
 			// 限制帧率
 			int MaxFPS = 120;
-			// if (m_DeltaTime < 1.0f / MaxFPS * 1000.0f)
-			// 	SDL_Delay(Uint32(floor(1.0 / MaxFPS * 1000.0 - m_DeltaTime)));
+			if (m_DeltaTime < 1.0f / MaxFPS * 1000.0f)
+				SDL_Delay(Uint32(floor(1.0 / MaxFPS * 1000.0 - m_DeltaTime)));
 		
 		}
 		

@@ -5,6 +5,7 @@
 #include "hex.hpp"
 
 #include "UiBase.hpp"
+#include <mutex>
 #include <vector>
 
 // #include "../Emulator.hpp"
@@ -19,11 +20,16 @@
 class DebugUi{
 
 private:
+    std::mutex render_lock;
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window* window;
     SDL_Renderer* renderer;
     char* rom_addr;
     std::vector<UiBase*> ui_components;
+    bool need_paint = false;
+
+    void DockerHelper();
+
 public:
     static MemoryEditor::OptionalMarkedSpans *MARKED_SPANS;
 
@@ -32,4 +38,6 @@ public:
     DebugUi();
 
     void PaintUi();
+
+    void PaintSDL();
 };
