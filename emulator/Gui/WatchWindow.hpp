@@ -8,6 +8,9 @@ class WatchWindow:public UiBase{
 private:
     MemoryEditor mem_editor;
 public:
+
+    UI_SINGLE_HEAD(WatchWindow)
+
     WatchWindow();
 
     void Show();

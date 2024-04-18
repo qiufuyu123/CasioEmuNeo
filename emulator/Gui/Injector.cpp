@@ -9,11 +9,13 @@
 
 #include "../Config/Config.hpp"
 Injector::Injector()
-:UiBase(this)
 {
+    instance = this;
     data_buf = new char[1024];
     memset(data_buf, 0,1024);
 }
+
+UI_SINGLE_IMPL(Injector);
 
 void Injector::Show(){
     ImGui::Begin(EmuGloConfig[UI_INJECTOR]);

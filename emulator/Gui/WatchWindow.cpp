@@ -9,10 +9,11 @@
 #include "../Config/Config.hpp"
 
 WatchWindow::WatchWindow()
-:UiBase(this)
 {
-    
+    instance = this;
 }
+
+UI_SINGLE_IMPL(WatchWindow)
 
 void WatchWindow::Show(){
     ImGui::Begin(EmuGloConfig[UI_REPORT_WINDOW]);

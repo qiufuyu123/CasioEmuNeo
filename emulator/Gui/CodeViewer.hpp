@@ -22,7 +22,7 @@ enum EmuDebugFlag{
 
 extern std::unordered_map<int, uint8_t> DebugBreakPoints;
 
-class CodeViewer : public UiBase
+class CodeViewer :public UiBase
 { 
     private:
         casioemu::Emulator *emu;
@@ -40,12 +40,14 @@ class CodeViewer : public UiBase
         uint32_t selected_addr = -1;
 
     public:
+        UI_SINGLE_HEAD(CodeViewer)
         uint8_t debug_flags = DEBUG_BREAKPOINT;
         CodeViewer(std::string path);
         ~CodeViewer();
         bool TryTrigBP(uint8_t seg,uint16_t offset,bool bp_mode=true);
         CodeElem LookUp(uint8_t seg,uint16_t offset,int *idx=0);
         void DrawWindow();
+        void Show();
         void DrawContent();
         void DrawMonitor();
         void JumpTo(uint8_t seg,uint16_t offset);

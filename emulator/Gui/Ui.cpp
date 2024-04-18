@@ -42,9 +42,9 @@ DebugUi::DebugUi()
     
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
-    ui_components.push_back(new CodeViewer(casioemu::Emulator::instance->GetModelFilePath("_disas.txt")));
     ui_components.push_back(new WatchWindow());
     ui_components.push_back(new Injector());
+    ui_components.push_back(new CodeViewer(casioemu::Emulator::instance->GetModelFilePath("_disas.txt")));
     rom_addr = casioemu::BatteryBackedRAM::rom_addr;
     // code_viewer=new CodeViewer(emulator->GetModelFilePath("_disas.txt"),emulator);
 }
@@ -69,7 +69,6 @@ void DebugUi::PaintUi(){
     for(UiBase* a:ui_components){
         a->Show();
     }
-
     
     ImGui::Render();
     SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);

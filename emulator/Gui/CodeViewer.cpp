@@ -24,8 +24,11 @@ int get_real_pc(uint8_t seg,uint16_t off){
     return (seg<<16)|off;
 }
 
+UI_SINGLE_IMPL(CodeViewer);
+
 CodeViewer::CodeViewer(std::string path)
-:UiBase(this){
+{
+    instance = this;
     src_path = path;
     emu = casioemu::Emulator::instance;
     std::thread t1([this](){
@@ -173,6 +176,10 @@ void CodeViewer::DrawMonitor(){
 }
 
 static bool step_debug=false,trace_debug=false;
+
+void CodeViewer::Show(){
+    DrawWindow();
+}
 
 void CodeViewer::DrawWindow(){
 

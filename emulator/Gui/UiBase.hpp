@@ -4,20 +4,13 @@ class UiBase{
 
 public:
     
-    static UiBase *instance;
-    
-    template<class T>
-    UiBase(T *child_this){
-        this->instance = child_this;
-    }
+    UiBase(){};
 
     virtual void BeforeShow();
 
     virtual void Show();
-    
-    template<class T>
-    static T *GetInst(){
-        return (T*)(UiBase::instance);
-    }
+
 };
 
+#define UI_SINGLE_HEAD(T) static T* instance;
+#define UI_SINGLE_IMPL(T) T* T::instance = nullptr;

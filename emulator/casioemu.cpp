@@ -165,14 +165,15 @@ int main(int argc, char *argv[])
 		Uint64 m_PreFrameTime;
 		m_StartTime = SDL_GetPerformanceCounter();
 		m_PreFrameTime = m_StartTime;
+		
 		while (emulator.Running())
 		{
-			
+			ui.PaintUi();
 			//std::cout<<SDL_GetMouseFocus()<<","<<emulator.window<<std::endl;
 			SDL_Event event;
 			if (!SDL_PollEvent(&event))
 				continue;
-			
+				
             if (abort_flag) {
                 abort_flag = false;
                 SDL_Event ev_exit;
@@ -239,18 +240,18 @@ int main(int argc, char *argv[])
 				
 				break;
 			}
-			ui.PaintUi();
-			Uint64 currTime = SDL_GetPerformanceCounter();
-			m_DeltaTime = (currTime - m_PreFrameTime) / (float)SDL_GetPerformanceFrequency();
-			m_PreFrameTime = currTime;
-			float totalTime = (currTime - m_StartTime) / (float)SDL_GetPerformanceFrequency();
-			float FPS = 1.0f / m_DeltaTime;
-			//SDL_LogInfo(0, "totalTime: %f\tdt: %f\tFPS: %f\n", totalTime, m_DeltaTime, FPS);
+			
+			// Uint64 currTime = SDL_GetPerformanceCounter();
+			// m_DeltaTime = (currTime - m_PreFrameTime) / (float)SDL_GetPerformanceFrequency();
+			// m_PreFrameTime = currTime;
+			// float totalTime = (currTime - m_StartTime) / (float)SDL_GetPerformanceFrequency();
+			// float FPS = 1.0f / m_DeltaTime;
+			// //SDL_LogInfo(0, "totalTime: %f\tdt: %f\tFPS: %f\n", totalTime, m_DeltaTime, FPS);
 
-			// 限制帧率
-			int MaxFPS = 120;
-			if (m_DeltaTime < 1.0f / MaxFPS * 1000.0f)
-				SDL_Delay(Uint32(floor(1.0 / MaxFPS * 1000.0 - m_DeltaTime)));
+			// // 限制帧率
+			// int MaxFPS = 120;
+			// if (m_DeltaTime < 1.0f / MaxFPS * 1000.0f)
+			// 	SDL_Delay(Uint32(floor(1.0 / MaxFPS * 1000.0 - m_DeltaTime)));
 		
 		}
 		
