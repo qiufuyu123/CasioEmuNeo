@@ -6,6 +6,8 @@
 
 class WatchWindow:public UiBase{
 private:
+    uint8_t reg_rx[16][3];
+    int char_width;
     MemoryEditor mem_editor;
 public:
 
@@ -14,4 +16,10 @@ public:
     WatchWindow();
 
     void Show();
+
+    void ShowRX();
+
+    void PrepareRX();
+
+    void UpdateRX();
 };

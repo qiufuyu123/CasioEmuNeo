@@ -5,6 +5,7 @@
 #include "../Chipset/Chipset.hpp"
 #include "../Chipset/CPU.hpp"
 #include "imgui.h"
+#include "WatchWindow.hpp"
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -141,9 +142,10 @@ void CodeViewer::DrawContent(){
                 if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)){
                     DebugBreakPoints[realpc] = 1;
                 }
+                
             }
             if(realpc == cur_break_real_pc){
-                
+                isbreaked = true;
                 ImVec2 pos = ImGui::GetCursorScreenPos();
                 ImGui::GetWindowDrawList()
                     ->AddRectFilled(pos, ImVec2(pos.x + ImGui::GetWindowWidth(),pos.y +ImGui::GetTextLineHeight()),IM_COL32(255,255,0,50));
@@ -236,6 +238,8 @@ void CodeViewer::DrawWindow(){
                 }
             }
             cur_break_real_pc = -1;
+            isbreaked = false;
+            WatchWindow::instance->UpdateRX();
             emu->SetPaused(false);
         }
         ImGui::SameLine();

@@ -42,6 +42,7 @@ class CodeViewer :public UiBase
     public:
         UI_SINGLE_HEAD(CodeViewer)
         uint8_t debug_flags = DEBUG_BREAKPOINT;
+        bool isbreaked = false;
         CodeViewer(std::string path);
         ~CodeViewer();
         bool TryTrigBP(uint8_t seg,uint16_t offset,bool bp_mode=true);
