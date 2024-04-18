@@ -34,7 +34,7 @@ namespace casioemu
 		this->hardware_id = (HardwareId)hardware_id;
 
 		unsigned int cycles_per_second = hardware_id == HW_ES_PLUS ? 128 * 1024 : hardware_id == HW_CLASSWIZ ? 1024 * 1024 * 2 : 2048 * 1024;
-		timer_interval = hardware_id == HW_CLASSWIZ_II ? 10 : 80;
+		timer_interval = hardware_id == HW_CLASSWIZ_II ? 10 : 20;
 
 		cycles.Setup(cycles_per_second, timer_interval);
 		chipset.Setup();
