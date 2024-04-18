@@ -81,7 +81,11 @@ timespec casioemu::FileSystem::mtime(const std::string &path) {
         perror("stat");
         return {};
     }
+#ifdef _WIN32
+    return {stat_r.st_mtime,0};
+#else
     return stat_r.st_mtim;
+#endif
 }
 
 uint64_t casioemu::FileSystem::mtime_ms(const std::string &path) {
