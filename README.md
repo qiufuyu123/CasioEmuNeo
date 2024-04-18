@@ -14,7 +14,7 @@
    1. `curl -fsSL https://xmake.io/shget.text | bash`   
 
    2. 安装并配置 Mingw64 *(windows下选则Posix版本!!!不是win32版本)
-   3. [字体](http://unifoundry.com/pub/unifont/unifont-15.1.05/font-builds/unifont-15.1.05.otf) 下载放到工程根目录
+   3. [字体](http://unifoundry.com/pub/unifont/unifont-15.1.05/font-builds/unifont-15.1.05.otf) 下载,重命名为unifont.otf,放到工程根目录
 1. 构建模拟器  
    ```
    cd emulator
