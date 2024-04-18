@@ -2,6 +2,7 @@
 #include "../Emulator.hpp"
 #include "SDL2/SDL.h"
 #include "CodeViewer.hpp"
+#include "SDL_video.h"
 #include "hex.hpp"
 
 #include "UiBase.hpp"
@@ -21,7 +22,7 @@ class DebugUi{
 
 private:
     std::mutex render_lock;
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI );
     SDL_Window* window;
     SDL_Renderer* renderer;
     char* rom_addr;

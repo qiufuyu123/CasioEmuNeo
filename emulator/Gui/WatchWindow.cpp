@@ -102,7 +102,7 @@ void WatchWindow::Show(){
   
     ImGui::EndChild();
     static int range=64;
-    ImGui::BeginChild("##stack_view",ImVec2(0,ImGui::GetWindowHeight()/5));
+    ImGui::BeginChild("##stack_view");
     ImGui::Text(EmuGloConfig[UI_REPORT_RANGE]);
     ImGui::SameLine();
     ImGui::SliderInt(EmuGloConfig[UI_REPORT_RANGE_SLIDER], &range, 64, 2048);

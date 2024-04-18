@@ -55,7 +55,7 @@ void DebugUi::DockerHelper(){
     bool* p_open = nullptr;
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_AutoHideTabBar;    ImGuiWindowFlags window_flags =  ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoDocking;
     if (opt_fullscreen)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
