@@ -89,7 +89,7 @@ void Injector::Show(){
             return false;
         };
         size_t i = 0, j = 0;
-        char hex_buf[2];
+        char hex_buf[3];
         while (strbuf[i] != '\0' && strbuf[i + 1] != '\0') {
             if (strbuf[i] == ';' || strbuf[i + 1] == ';') {
                 // begin comment; skip the rest of the line
@@ -105,7 +105,7 @@ void Injector::Show(){
                     ++i;
                     continue;
                 }
-                hex_buf[0] = strbuf[i], hex_buf[1] = strbuf[i + 1];
+                hex_buf[0] = strbuf[i], hex_buf[1] = strbuf[i + 1],hex_buf[2]='\0';
                 uint8_t byte = strtoul(hex_buf, nullptr, 16);
                 *(base_addr - MEM_EDIT_BASE_ADDR + LABEL_INPUT_BUF + j) = (char) byte;
                 *(data_buf + j) = (char) byte;
