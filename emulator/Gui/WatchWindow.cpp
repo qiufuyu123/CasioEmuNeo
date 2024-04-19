@@ -82,6 +82,14 @@ void WatchWindow::UpdateRX(){
         casioemu::Emulator::instance->chipset.cpu.reg_r[i]
          = (uint8_t)strtol((char*)reg_rx[i], nullptr, 16);
     }
+    casioemu::Emulator::instance->chipset.cpu.reg_pc
+         = (uint16_t)strtol((char*)reg_pc, nullptr, 16);
+    casioemu::Emulator::instance->chipset.cpu.reg_lr
+         = (uint16_t)strtol((char*)reg_lr, nullptr, 16);
+    casioemu::Emulator::instance->chipset.cpu.reg_ea
+         = (uint16_t)strtol((char*)reg_ea, nullptr, 16);
+    casioemu::Emulator::instance->chipset.cpu.reg_sp
+         = (uint16_t)strtol((char*)reg_sp, nullptr, 16);
 }
 
 void WatchWindow::Show(){
