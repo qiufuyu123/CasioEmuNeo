@@ -15,6 +15,7 @@
 
 WatchWindow::WatchWindow()
 {
+    mem_editor.OptShowOptions = false;   
     instance = this;
 }
 
@@ -25,19 +26,55 @@ void WatchWindow::PrepareRX(){
         sprintf((char*)reg_rx[i], "%02x",casioemu::Emulator::instance
         ->chipset.cpu.reg_r[i] & 0x0ff);
     }
+    sprintf(reg_pc, "%04x",casioemu::Emulator::instance
+        ->chipset.cpu.reg_pc & 0xffff);
+    sprintf(reg_lr, "%04x",casioemu::Emulator::instance
+        ->chipset.cpu.reg_lr & 0xffff);
+    sprintf(reg_sp, "%04x",casioemu::Emulator::instance
+        ->chipset.cpu.reg_sp & 0xffff);
+    sprintf(reg_ea, "%04x",casioemu::Emulator::instance
+        ->chipset.cpu.reg_ea & 0xffff);
 }
 
 void WatchWindow::ShowRX(){
     char id[10];
-    ImGui::TextColored(ImVec4(0,200,0,255), "RXn: ");
-    ImGui::SameLine();
+    ImGui::TextColored(ImVec4(0,200,0,255)
+        , "RXn: ");
     for (int i = 0; i<16; i++) {
+        ImGui::SameLine();
         sprintf(id, "##data%d",i);
-        ImGui::SetNextItemWidth(char_width*2);
+        ImGui::SetNextItemWidth(char_width*2+2);
         ImGui::InputText(id, (char*)&reg_rx[i][0],3
         ,ImGuiInputTextFlags_CharsHexadecimal);
-        ImGui::SameLine();
+        
     }
+    //ERn
+    //不可编辑，必须通过Rn编辑
+    ImGui::Text("ERn: ");
+    for (int i = 0; i<16; i+=2) {
+        ImGui::SameLine();
+        uint16_t val = casioemu::Emulator::instance->chipset.cpu.reg_r[i+1]
+            <<8|casioemu::Emulator::instance->chipset.cpu.reg_r[i];
+        ImGui::Text("%04x ",val);
+        
+    }
+
+    auto show_sfr = ([&](char *ptr, char *label,int i){
+        ImGui::TextColored(ImVec4(0,200,0,255)
+        , label);
+        ImGui::SameLine();
+        sprintf(id, "##sfr%d",i);
+        ImGui::SetNextItemWidth(char_width*4+2);
+        ImGui::InputText(id, (char*)ptr,5
+        ,ImGuiInputTextFlags_CharsHexadecimal);
+    });
+    show_sfr(reg_pc, "PC: ", 1);
+    ImGui::SameLine();
+    show_sfr(reg_lr, "LR: ", 2);
+    ImGui::SameLine();
+    show_sfr(reg_ea, "EA: ", 3);
+    ImGui::SameLine();
+    show_sfr(reg_sp, "SP: ", 4);
 }
 
 void WatchWindow::UpdateRX(){
@@ -55,50 +92,14 @@ void WatchWindow::Show(){
     std::string s=chipset.cpu.GetBacktrace();
     ImGui::InputTextMultiline("##as",(char*)s.c_str(),s.size(),ImVec2(ImGui::GetWindowWidth(),0),ImGuiInputTextFlags_ReadOnly);
     ImGui::EndChild();
-    ImGui::BeginChild("##reg_trace",ImVec2(0,ImGui::GetWindowHeight()/5));
+    ImGui::BeginChild("##reg_trace",ImVec2(0,ImGui::GetWindowHeight()/3));
     if(!CodeViewer::instance->isbreaked){
         ImGui::TextColored(ImVec4(255,255,0,255), "寄存器请在断点状态下查看");
         PrepareRX();
     }else {
         ShowRX();
     }
-    // if(ImGui::BeginTable("table", 2)){
-    //     ImGuiListClipper clipper;
-    //     clipper.Begin(16+10+2);
-    //     while (clipper.Step())
-    //     {
-    //         for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-    //         {
-    //             ImGui::TableNextRow();
-    //             ImGui::TableSetColumnIndex(0);
-    //             if(row>=0 && row<16){
-    //                 ImGui::Text("R%d:",row);
-    //             }else if(row>=16 && row<24){
-    //                 ImGui::Text("ER%d:",row == 16?1:(row-16)*2);
-    //             }else if(row == 24){
-    //                 ImGui::Text("SP:");
-    //             }else if(row == 25){
-    //                 ImGui::Text("LR");
-    //             }else if(row == 26){
-    //                 ImGui::Text("EA");
-    //             }
-    //             ImGui::TableSetColumnIndex(1);
-    //             if(row>=0 && row<16){
-    //                 ImGui::Text("0x%02x",chipset.cpu.reg_r[row]&0x0ff);
-    //             }else if(row>=16 && row<24){
-    //                 int x = (row -16)*2;
-    //                 ImGui::Text("0x%04x",chipset.cpu.reg_r[x+1]<<8|chipset.cpu.reg_r[x]);
-    //             }else if(row == 24){
-    //                 ImGui::Text("0x%04x",chipset.cpu.reg_sp&0xffff);
-    //             }else if(row == 25){
-    //                 ImGui::Text("0x%04x",chipset.cpu.reg_lr&0xffff);
-    //             }else if(row==26){
-    //                 ImGui::Text("0x%04x",chipset.cpu.reg_ea&0xffff);
-    //             }
-    //         }
-    //     }
-    //     ImGui::EndTable();
-    // }
+
   
     ImGui::EndChild();
     static int range=64;
