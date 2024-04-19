@@ -169,6 +169,7 @@ int main(int argc, char *argv[])
 			while (true) {
 				ui.PaintUi();
 				std::this_thread::sleep_for(std::chrono::milliseconds(16));
+				ui.PaintSDL();
 			}
 			
 		});
@@ -180,7 +181,7 @@ int main(int argc, char *argv[])
 			SDL_Event event;
 			if (!SDL_PollEvent(&event))
 				continue;
-			ui.PaintSDL();
+			// ui.PaintSDL();
             if (abort_flag) {
                 abort_flag = false;
                 SDL_Event ev_exit;
@@ -220,6 +221,7 @@ int main(int argc, char *argv[])
 					 	// send resized event, but some still does (such as xmonad)
 					 	break;
 					 }
+					ui.PaintSDL();
 					//ImGui_ImplSDL2_ProcessEvent(&event);
 					if(event.window.windowID == SDL_GetWindowID(emulator.window)){
 					emulator.WindowResize(event.window.data1, event.window.data2);
