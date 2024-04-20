@@ -34,6 +34,8 @@ void WatchWindow::PrepareRX(){
         ->chipset.cpu.reg_sp & 0xffff);
     sprintf(reg_ea, "%04x",casioemu::Emulator::instance
         ->chipset.cpu.reg_ea & 0xffff);
+    sprintf(reg_psw, "%02x",casioemu::Emulator::instance
+        ->chipset.cpu.reg_psw & 0xffff);
 }
 
 void WatchWindow::ShowRX(){
@@ -59,13 +61,13 @@ void WatchWindow::ShowRX(){
         
     }
 
-    auto show_sfr = ([&](char *ptr, char *label,int i){
+    auto show_sfr = ([&](char *ptr, char *label,int i,int width = 4){
         ImGui::TextColored(ImVec4(0,200,0,255)
         , label);
         ImGui::SameLine();
         sprintf(id, "##sfr%d",i);
-        ImGui::SetNextItemWidth(char_width*4+2);
-        ImGui::InputText(id, (char*)ptr,5
+        ImGui::SetNextItemWidth(char_width*width+2);
+        ImGui::InputText(id, (char*)ptr,width+1
         ,ImGuiInputTextFlags_CharsHexadecimal);
     });
     show_sfr(reg_pc, "PC: ", 1);
@@ -75,6 +77,8 @@ void WatchWindow::ShowRX(){
     show_sfr(reg_ea, "EA: ", 3);
     ImGui::SameLine();
     show_sfr(reg_sp, "SP: ", 4);
+    ImGui::SameLine();
+    show_sfr(reg_psw, "PSW: ", 5,2);
 }
 
 void WatchWindow::UpdateRX(){
@@ -90,6 +94,8 @@ void WatchWindow::UpdateRX(){
          = (uint16_t)strtol((char*)reg_ea, nullptr, 16);
     casioemu::Emulator::instance->chipset.cpu.reg_sp
          = (uint16_t)strtol((char*)reg_sp, nullptr, 16);
+    casioemu::Emulator::instance->chipset.cpu.reg_psw
+         = (uint16_t)strtol((char*)reg_psw, nullptr, 16);
 }
 
 void WatchWindow::Show(){

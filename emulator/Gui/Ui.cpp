@@ -9,6 +9,7 @@
 #include "hex.hpp"
 #include "WatchWindow.hpp"
 #include "Injector.hpp"
+#include "MemBreakPoint.hpp"
 #include "../Peripheral/BatteryBackedRAM.hpp"
 
 #include "../Config/Config.hpp"
@@ -45,6 +46,7 @@ DebugUi::DebugUi()
     ImGui_ImplSDLRenderer2_Init(renderer);
     ui_components.push_back(new WatchWindow());
     ui_components.push_back(new Injector());
+    ui_components.push_back(new MemBreakPoint());
     ui_components.push_back(new CodeViewer(casioemu::Emulator::instance->GetModelFilePath("_disas.txt")));
     rom_addr = casioemu::BatteryBackedRAM::rom_addr;
     // code_viewer=new CodeViewer(emulator->GetModelFilePath("_disas.txt"),emulator);
@@ -86,25 +88,24 @@ void DebugUi::DockerHelper(){
 }
 
 void DebugUi::PaintSDL(){
-    static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     if(!need_paint)
         return;
-    render_lock.lock();
-    ImGuiIO& io = ImGui::GetIO();
-    SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-    SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
-    SDL_RenderClear(renderer);
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+    // SDL_RenderClear(renderer);
+
+
     SDL_RenderPresent(renderer);
-    need_paint = false;
-    render_lock.unlock();
+    need_paint  = false;
 }
 
 void DebugUi::PaintUi(){
-    
+    if(need_paint)
+        return;
     assert(MARKED_SPANS != nullptr /* initialized in casioemu.cpp */);
     auto &marked_spans = *MARKED_SPANS;
-    render_lock.lock();
+    static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImGuiIO& io = ImGui::GetIO();
+    SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+    SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -118,10 +119,10 @@ void DebugUi::PaintUi(){
     }
     
     ImGui::Render();
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
 
     need_paint = true;
-    render_lock.unlock();
-    
+
 }
  
 MemoryEditor::OptionalMarkedSpans* DebugUi::MARKED_SPANS = nullptr;

@@ -204,7 +204,7 @@ void CodeViewer::DrawWindow(){
     //ImGui::SetNextWindowSize(sz);
     //ImGui::SetNextWindowContentSize(sz);
     ImGui::Begin(EmuGloConfig[UI_DISAS],0);
-    ImGui::BeginChild("##scrolling",ImVec2(0,-ImGui::GetWindowHeight()/3));
+    ImGui::BeginChild("##scrolling",ImVec2(0,ImGui::GetWindowHeight()-ImGui::GetTextLineHeight()*2));
     DrawContent();
     ImGui::EndChild();
     ImGui::Separator();

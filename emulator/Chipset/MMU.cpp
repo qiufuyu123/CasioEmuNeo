@@ -1,5 +1,7 @@
 #include "MMU.hpp"
 
+#include "../Gui/MemBreakPoint.hpp"
+
 #include <cstdio>
 #include <cstring>
 #include "../Emulator.hpp"
@@ -204,7 +206,9 @@ namespace casioemu
 			emulator.HandleMemoryError();
 			return 0;
 		}
-
+		if(MemBreakPoint::instance){
+			MemBreakPoint::instance->TryTrigBp(segment_offset, false);
+		}
 		return region->read(region, offset);
 	}
 
@@ -215,7 +219,7 @@ namespace casioemu
 
 		size_t segment_index = offset >> 16;
 		size_t segment_offset = offset & 0xFFFF;
-
+		
 		MemoryByte *segment = segment_dispatch[segment_index];
 		if (!segment)
 		{
@@ -241,6 +245,10 @@ namespace casioemu
 			//logger::Info("write to unmapped offset %04zX of segment %02zX (%02zX)\n", segment_offset, segment_index, data);
 			emulator.HandleMemoryError();
 			return;
+		}
+
+		if(MemBreakPoint::instance){
+			MemBreakPoint::instance->TryTrigBp(segment_offset, true);
 		}
 
 		region->write(region, offset, data);
