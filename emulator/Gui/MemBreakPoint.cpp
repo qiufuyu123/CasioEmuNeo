@@ -35,6 +35,7 @@ void MemBreakPoint::DrawContent(){
                 ImGui::Text("请选择断点模式：");
                 if(ImGui::Button("查找是什么访问了这个地址")){
                     target_addr = i;
+                    data.enableWrite=0;
                     data.records.clear();
                     ImGui::CloseCurrentPopup();
                 }
@@ -68,6 +69,10 @@ void MemBreakPoint::DrawFindContent(){
     int write = break_point_hash[target_addr].enableWrite;
     static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
     ImGui::Text("正在监听地址:%04x",break_point_hash[target_addr].addr);
+    ImGui::SameLine();
+    if(ImGui::Button("清除记录")){
+        break_point_hash[target_addr].records.clear();
+    }
     if(ImGui::BeginTable("##outputtable", 2,flags)){
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableSetupColumn("PC: ");

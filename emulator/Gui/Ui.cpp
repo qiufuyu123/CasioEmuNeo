@@ -37,7 +37,7 @@ DebugUi::DebugUi()
     
     EmuGloConfig.GetAtlas().AddRanges(io.Fonts->GetGlyphRangesChineseFull());
     EmuGloConfig.GetAtlas().BuildRanges(&ranges);
-    io.Fonts->AddFontFromFileTTF(EmuGloConfig.GetFontPath().data(), 18.0f, nullptr, ranges.Data);
+    io.Fonts->AddFontFromFileTTF(EmuGloConfig.GetFontPath().data(), 16.0f, nullptr, ranges.Data);
     io.Fonts->Build();
     
     ImGui::StyleColorsDark();
