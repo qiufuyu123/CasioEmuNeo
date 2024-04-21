@@ -45,7 +45,7 @@ void WatchWindow::ShowRX(){
     for (int i = 0; i<16; i++) {
         ImGui::SameLine();
         sprintf(id, "##data%d",i);
-        ImGui::SetNextItemWidth(char_width*2+2);
+        ImGui::SetNextItemWidth(char_width*3);
         ImGui::InputText(id, (char*)&reg_rx[i][0],3
         ,ImGuiInputTextFlags_CharsHexadecimal);
         
@@ -101,12 +101,12 @@ void WatchWindow::UpdateRX(){
 void WatchWindow::Show(){
     char_width = ImGui::CalcTextSize("F").x;
     ImGui::Begin(EmuGloConfig[UI_REPORT_WINDOW]);
-    ImGui::BeginChild("##stack_trace",ImVec2(0,ImGui::GetWindowHeight()/5));
+    ImGui::BeginChild("##stack_trace",ImVec2(0,ImGui::GetWindowHeight()/4));
     casioemu::Chipset& chipset = casioemu::Emulator::instance->chipset;
     std::string s=chipset.cpu.GetBacktrace();
     ImGui::InputTextMultiline("##as",(char*)s.c_str(),s.size(),ImVec2(ImGui::GetWindowWidth(),0),ImGuiInputTextFlags_ReadOnly);
     ImGui::EndChild();
-    ImGui::BeginChild("##reg_trace",ImVec2(0,ImGui::GetWindowHeight()/3));
+    ImGui::BeginChild("##reg_trace",ImVec2(0,ImGui::GetTextLineHeightWithSpacing()*4),ImGuiChildFlags_None,ImGuiWindowFlags_AlwaysHorizontalScrollbar);
     if(!CodeViewer::instance->isbreaked){
         ImGui::TextColored(ImVec4(255,255,0,255), "寄存器请在断点状态下查看");
         PrepareRX();
