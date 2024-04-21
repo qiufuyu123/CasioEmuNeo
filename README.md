@@ -9,6 +9,9 @@
 - [汇编器使用](./docs/intro_asm.md)
 - [rop注入/调试](./docs/intro_rop.md)
 
+## 不想从源码构建？下载windows预编译版本  
+[release](https://github.com/qiufuyu123/CasioEmuNeo/releases)
+
 ## 构建
 0. 安装 xmake & Mingw & 下载字体
    1. `curl -fsSL https://xmake.io/shget.text | bash`   
