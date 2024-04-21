@@ -4,7 +4,6 @@
 #include "CodeViewer.hpp"
 #include "imgui.h"
 #include "../Peripheral/BatteryBackedRAM.hpp"
-#include <_mingw_stat64.h>
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
