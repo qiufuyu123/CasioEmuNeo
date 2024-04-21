@@ -16,7 +16,7 @@
 #include "Data/SpriteInfo.hpp"
 
 #define MEM_EDIT_BASE_ADDR 0xD000
-#define MEM_EDIT_MEM_SIZE 0x2100
+#define MEM_EDIT_MEM_SIZE 0x2800
 #define LABEL_INPUT_BUF 0xd180
 
 namespace casioemu
