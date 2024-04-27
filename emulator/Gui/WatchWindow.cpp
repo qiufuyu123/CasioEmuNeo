@@ -1,6 +1,7 @@
 #include "WatchWindow.hpp"
 #include "../Chipset//Chipset.hpp"
 #include "../Chipset/CPU.hpp"
+#include "Ui.hpp"
 #include "CodeViewer.hpp"
 #include "imgui.h"
 #include "../Peripheral/BatteryBackedRAM.hpp"
@@ -121,7 +122,7 @@ void WatchWindow::Show(){
     ImGui::SameLine();
     ImGui::SliderInt(EmuGloConfig[UI_REPORT_RANGE_SLIDER], &range, 64, 2048);
     uint16_t offset = chipset.cpu.reg_sp&0xffff;
-    mem_editor.DrawContents(casioemu::BatteryBackedRAM::rom_addr+ offset-0xd000, range,offset);
+    mem_editor.DrawContents(casioemu::BatteryBackedRAM::rom_addr+ offset-DebugUi::instance->ram_start, range,offset);
     ImGui::EndChild();
     ImGui::End();
     

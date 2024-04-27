@@ -3,15 +3,16 @@
 
 #include "Peripheral.hpp"
 #include "../Chipset/MMURegion.hpp"
+#include <cstdint>
 
 namespace casioemu
 {
 	class Miscellaneous : public Peripheral
 	{
-		MMURegion region_dsr, region_F048, region_F220;
+		MMURegion region_dsr, region_F048, region_F220,region_F0D0,region_F0D1,region_F0D2;
 		uint64_t data_F048;
 		uint32_t data_F220;
-
+		uint8_t data_F0D0,data_F0D1,data_F0D2;
 		static constexpr uint16_t addr [] = {
 			0xF00A, 0xF018, 0xF033, 0xF034, 0xF041, // both HW_ES_PLUS, HW_CLASSWIZ and HW_CLASSWIZ_II
 			0xF035, 0xF036, 0xF039, 0xF012, 0xF03D, 0xF224, 0xF028, 0xF310, // HW_CLASSWIZ and HW_CLASSWIZ_II

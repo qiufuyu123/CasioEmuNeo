@@ -51,6 +51,9 @@ int imgui_rendering(void* data){
 	event.user.code = 6;
 	while (true) {
 		ui->PaintUi();
+#ifndef _WIN32
+		ui.PaintSDL();
+#endif
 		SDL_Delay(16);
 	}
 }
@@ -91,6 +94,7 @@ int main(int argc, char *argv[])
 		// printf("No model path supplied\n");
 		// exit(2);
 	}
+	argv_map["script"]="lua-common.lua";
 
 	int sdlFlags = SDL_INIT_VIDEO | SDL_INIT_TIMER;
 	if (SDL_Init(sdlFlags) != 0)
@@ -117,9 +121,18 @@ int main(int argc, char *argv[])
     }
 	// while(1)
 	// 	;
+
+
 	{
 		Emulator emulator(argv_map);
-		
+	std::thread console_t([&](){
+		char cmd_buf[128];
+		while (true) {
+			memset(cmd_buf, 0, 128);
+			std::cin.getline(cmd_buf,128);
+			emulator.ExecuteCommand(std::string(cmd_buf));
+		}
+	});
 		// Note: argv_map must be destructed after emulator.
 
         // start colored spans file watcher thread

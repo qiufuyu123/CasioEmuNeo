@@ -32,6 +32,8 @@ private:
     void DockerHelper();
 
 public:
+    UI_SINGLE_HEAD(DebugUi)
+    int ram_start = 0,ram_length = 0;
     static MemoryEditor::OptionalMarkedSpans *MARKED_SPANS;
 
     static void UpdateMarkedSpans(const MemoryEditor::OptionalMarkedSpans &spans);

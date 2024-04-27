@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <imgui.h>
 #include "CodeViewer.hpp"
 #include "imgui_impl_sdl2.h"
@@ -14,10 +15,12 @@
 
 #include "../Config/Config.hpp"
 ImVector<ImWchar> ranges;
-	
+UI_SINGLE_IMPL(DebugUi)
 DebugUi::DebugUi()
 {
-
+    instance = this;
+    ram_length = casioemu::Emulator::instance->GetModelInfo("ram_length");
+    ram_start = casioemu::Emulator::instance->GetModelInfo("ram_start");
     window = SDL_CreateWindow(EmuGloConfig[UI_TITLE], SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
@@ -113,7 +116,7 @@ void DebugUi::PaintUi(){
 
     static MemoryEditor mem_edit;
     mem_edit.ReadOnly = false;
-    mem_edit.DrawWindow(EmuGloConfig[UI_MEMEDIT], rom_addr, MEM_EDIT_MEM_SIZE, MEM_EDIT_BASE_ADDR, marked_spans);
+    mem_edit.DrawWindow(EmuGloConfig[UI_MEMEDIT], rom_addr, ram_length, ram_start, marked_spans);
     for(UiBase* a:ui_components){
         a->Show();
     }
