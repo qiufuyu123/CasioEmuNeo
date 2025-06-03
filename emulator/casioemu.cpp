@@ -52,7 +52,7 @@ int imgui_rendering(void* data){
 	while (true) {
 		ui->PaintUi();
 #ifndef _WIN32
-		ui.PaintSDL();
+		ui->PaintSDL();
 #endif
 		SDL_Delay(16);
 	}
