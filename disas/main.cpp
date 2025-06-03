@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <cstdint>
 #include "lib.h"
 
 #define separator "// ------------------------------------------------------------------ "
