@@ -27,6 +27,20 @@ void EmuConfig::initTranslate(){
     translate[UI_INFO2]="'an' is entered!\nPlease make sure you're in Math I/O mode\n Back to emulator and press [->][=] to finish!";
     translate[UI_INFO3]="ROP is entered!\nPlease press [->][=] to finish!";
     translate[UI_MEMEDIT]="Memory Viewer";
+    translate[UI_REGS_BREAK_HINT] = "Please view registers while at a breakpoint";
+    translate[UI_BP_SELECT_MODE] = "Select breakpoint mode:";
+    translate[UI_BP_FIND_READ] = "Find what reads this address";
+    translate[UI_BP_FIND_WRITE] = "Find what writes to this address";
+    translate[UI_BP_DELETE] = "Delete this address";
+    translate[UI_BP_NOT_SET] = "No breakpoints set. Add an address, right-click it, and select a mode.";
+    translate[UI_BP_LISTENING] = "Listening on address: %04x";
+    translate[UI_BP_CLEAR_RECORDS] = "Clear records";
+    translate[UI_BP_ADDR] = "Address:";
+    translate[UI_BP_ADD_ADDR] = "Add address";
+    translate[UI_BP_MODE] = "Mode:";
+    translate[UI_BP_WRITE] = "Write";
+    translate[UI_BP_READ] = "Read";
+    translate[UI_MEM_BP] = "Memory Breakpoint";
 }
 
 void EmuConfig::update(){

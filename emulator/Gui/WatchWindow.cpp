@@ -61,14 +61,12 @@ void WatchWindow::ShowRX(){
         
     }
 
-    auto show_sfr = ([&](char *ptr, char *label,int i,int width = 4){
-        ImGui::TextColored(ImVec4(0,200,0,255)
-        , label);
+    auto show_sfr = ([&](char *ptr, const char *label,int i,int width = 4){
+        ImGui::TextColored(ImVec4(0,200,0,255), "%s", label);
         ImGui::SameLine();
         sprintf(id, "##sfr%d",i);
         ImGui::SetNextItemWidth(char_width*width+2);
-        ImGui::InputText(id, (char*)ptr,width+1
-        ,ImGuiInputTextFlags_CharsHexadecimal);
+        ImGui::InputText(id, (char*)ptr,width+1,ImGuiInputTextFlags_CharsHexadecimal);
     });
     show_sfr(reg_pc, "PC: ", 1);
     ImGui::SameLine();
@@ -108,7 +106,7 @@ void WatchWindow::Show(){
     ImGui::EndChild();
     ImGui::BeginChild("##reg_trace",ImVec2(0,ImGui::GetTextLineHeightWithSpacing()*4),ImGuiChildFlags_None,ImGuiWindowFlags_AlwaysHorizontalScrollbar);
     if(!CodeViewer::instance->isbreaked){
-        ImGui::TextColored(ImVec4(255,255,0,255), "寄存器请在断点状态下查看");
+        ImGui::TextColored(ImVec4(255,255,0,255), EmuGloConfig[UI_REGS_BREAK_HINT]);
         PrepareRX();
     }else {
         ShowRX();
