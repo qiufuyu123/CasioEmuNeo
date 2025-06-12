@@ -5,6 +5,7 @@
 #include <string>
 #include <deque>
 #include <cstring>
+#include <cstdint>
 
 #define ip (totallen - length - buf.size())
 
