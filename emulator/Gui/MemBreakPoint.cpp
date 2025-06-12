@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <stdlib.h>
+#include "../Config/Config.hpp"
 
 UI_SINGLE_IMPL(MemBreakPoint)
 
@@ -32,21 +33,21 @@ void MemBreakPoint::DrawContent(){
             ImGui::PopID();
             if(ImGui::BeginPopupContextItem()){
                 selected = i;
-                ImGui::Text("请选择断点模式：");
-                if(ImGui::Button("查找是什么访问了这个地址")){
+                ImGui::Text(EmuGloConfig[UI_BP_SELECT_MODE]);
+                if(ImGui::Button(EmuGloConfig[UI_BP_FIND_READ])){
                     target_addr = i;
                     data.enableWrite=0;
                     data.records.clear();
                     ImGui::CloseCurrentPopup();
                 }
-                if(ImGui::Button("查找是什么写入了这个地址")){
+                if(ImGui::Button(EmuGloConfig[UI_BP_FIND_WRITE])){
                     data.enableWrite = true;
                     target_addr = i;
                     data.records.clear();
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::Separator();
-                if(ImGui::Button("删除此地址")){
+                if(ImGui::Button(EmuGloConfig[UI_BP_DELETE])){
                     data.records.clear();
                     if(target_addr == i){
                         target_addr = -1;
@@ -63,27 +64,27 @@ void MemBreakPoint::DrawContent(){
 
 void MemBreakPoint::DrawFindContent(){
     if(target_addr == -1){
-        ImGui::TextColored(ImVec4(255,255,0,255), "未设置任何断点，请添加地址->右键地址->选择模式");
+        ImGui::TextColored(ImVec4(255,255,0,255), EmuGloConfig[UI_BP_NOT_SET]);
         return;
     }
     int write = break_point_hash[target_addr].enableWrite;
     static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-    ImGui::Text("正在监听地址:%04x",break_point_hash[target_addr].addr);
+    ImGui::Text(EmuGloConfig[UI_BP_LISTENING], break_point_hash[target_addr].addr);
     ImGui::SameLine();
-    if(ImGui::Button("清除记录")){
+    if(ImGui::Button(EmuGloConfig[UI_BP_CLEAR_RECORDS])){
         break_point_hash[target_addr].records.clear();
     }
     if(ImGui::BeginTable("##outputtable", 2,flags)){
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableSetupColumn("PC: ");
-        ImGui::TableSetupColumn("模式: ");
+        ImGui::TableSetupColumn(EmuGloConfig[UI_BP_MODE]);
         ImGui::TableHeadersRow();
         for(auto kv : break_point_hash[target_addr].records){
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::TextColored(ImVec4(0,200,0,200), "%01x:%04x",kv.first>>16, kv.first&0x0ffff);
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text(write?"写":"读");
+            ImGui::Text(write?EmuGloConfig[UI_BP_WRITE]:EmuGloConfig[UI_BP_READ]);
         }
         ImGui::EndTable();
     }
@@ -103,14 +104,14 @@ void MemBreakPoint::TryTrigBp(uint16_t addr,bool write){
 
 void MemBreakPoint::Show(){
     static char buf[5]={0};
-    ImGui::Begin("内存断点");
+    ImGui::Begin(EmuGloConfig[UI_MEM_BP]);
     ImGui::BeginChild("##srcollingmbp",ImVec2(0,ImGui::GetWindowHeight()/3));
     DrawContent();
     ImGui::EndChild();
     ImGui::SetNextItemWidth(ImGui::CalcTextSize("F").x*4);
-    ImGui::InputText("地址:", buf, 5,ImGuiInputTextFlags_CharsHexadecimal);
+    ImGui::InputText(EmuGloConfig[UI_BP_ADDR], buf, 5,ImGuiInputTextFlags_CharsHexadecimal);
     ImGui::SameLine();
-    if(ImGui::Button("添加地址")){
+    if(ImGui::Button(EmuGloConfig[UI_BP_ADD_ADDR])){
         break_point_hash.push_back({
             .addr = (uint16_t)strtol(buf, nullptr, 16)
         });
